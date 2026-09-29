@@ -214,91 +214,118 @@ html[data-theme='dark'] .hero__alert {
   color: var(--text-muted);
 }
 
-.week__days {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 0.35rem;
-}
-
-.week__day {
-  width: 100%;
-  border: 1px solid transparent;
-  background: transparent;
-  border-radius: 18px;
-  padding: 0.55rem 0.2rem 0.5rem;
+.week__grid-wrap {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.1rem;
-  color: var(--text);
+  gap: 0.3rem;
 }
 
-.week__day-number {
-  font-weight: 800;
-  font-size: 1rem;
+.week__weekdays,
+.week__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.3rem;
 }
 
-.week__day-name {
-  font-size: 0.74rem;
+.week__weekday {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--text-muted);
+  padding-bottom: 0.15rem;
 }
 
-.week__day--active {
-  background: #7c6cf6;
+/* Square day cells: the old 7-day strip used wide rounded cards, which read as a
+   row of panels rather than a calendar. `aspect-ratio` keeps them square at any
+   container width. */
+.week__cell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.week__cell:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* Spill-over days from the neighbouring months are dimmed but still clickable. */
+.week__cell--outside {
+  background: transparent;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.week__cell--today {
+  border-color: #6d5ef0;
+  color: #6d5ef0;
+  font-weight: 800;
+}
+
+.week__cell--selected {
+  background: #6d5ef0;
+  border-color: #6d5ef0;
   color: #fff;
 }
 
-.week__day--active .week__day-name {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-/* The today marker is a ring + label so the current day is unmistakable even
-   when it is not the selected day. */
-.week__day--today {
-  border-color: #6d5ef0;
-}
-
-.week__day--today .week__day-number {
-  color: #6d5ef0;
-}
-
-.week__day--today.week__day--active {
+.week__cell--selected:hover {
   background: #6d5ef0;
   color: #fff;
 }
 
-.week__day--today.week__day--active .week__day-number {
-  color: #fff;
+/* Filled dot under today's number, the calendar's "you are here" marker. */
+.week__today-dot {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
-.week__today-mark {
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #6d5ef0;
+.week__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.week__day--active .week__today-mark {
-  color: rgba(255, 255, 255, 0.9);
+.week__today-btn {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.78rem;
 }
 
 .week__badge {
-  min-width: 17px;
-  height: 17px;
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
   padding: 0 4px;
   border-radius: 999px;
-  background: currentColor;
-  color: var(--surface);
-  font-size: 0.66rem;
+  background: #6d5ef0;
+  color: #fff;
+  font-size: 0.62rem;
   font-weight: 800;
-  line-height: 17px;
+  line-height: 16px;
   text-align: center;
 }
 
-.week__day--active .week__badge {
-  color: #6d5ef0;
+.week__cell--selected .week__badge {
   background: #fff;
+  color: #6d5ef0;
 }
 
 .week__all {

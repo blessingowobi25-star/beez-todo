@@ -10,7 +10,7 @@ import { TaskComposer } from './components/TaskComposer';
 import { TaskEditor } from './components/TaskEditor';
 import { TaskList } from './components/TaskList';
 import { Toast } from './components/Toast';
-import { WeekStrip } from './components/WeekStrip';
+import { MonthCalendar } from './components/MonthCalendar';
 import { useAppState } from './hooks/useAppState';
 import { formatLongDate, isDueToday, isOverdue } from './lib/date';
 import type { TaskDraft } from './lib/taskUtils';
@@ -129,7 +129,7 @@ export default function App() {
       />
 
       <div className="app__mobile-pane" data-active={section === 'calendar'}>
-        <WeekStrip
+        <MonthCalendar
           today={today}
           selectedDate={calendarDate ?? today}
           counts={dayCounts}

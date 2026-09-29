@@ -1,16 +1,71 @@
 import { describe, expect, it } from 'vitest';
 import {
   addDaysISO,
+  addMonthsISO,
   calendarDaysBetween,
   describeDueDate,
   formatClock,
   formatRelativeTime,
   isDueToday,
   isOverdue,
+  isSameMonth,
+  monthGridISO,
   parseISODate,
   toISODate,
   todayISO,
 } from '../lib/date';
+
+describe('addMonthsISO', () => {
+  it('moves forward and backward across a year boundary', () => {
+    expect(addMonthsISO('2026-09-29', 1)).toBe('2026-10-29');
+    expect(addMonthsISO('2026-01-15', -1)).toBe('2025-12-15');
+    expect(addMonthsISO('2026-09-29', 12)).toBe('2027-09-29');
+  });
+
+  // Naive month arithmetic overflows: Jan 31 + 1 month lands in early March.
+  it('clamps to the last day of a shorter target month', () => {
+    expect(addMonthsISO('2026-01-31', 1)).toBe('2026-02-28');
+    expect(addMonthsISO('2024-01-31', 1)).toBe('2024-02-29');
+  });
+
+  it('returns the input unchanged when it cannot be parsed', () => {
+    expect(addMonthsISO('nonsense', 1)).toBe('nonsense');
+  });
+});
+
+describe('monthGridISO', () => {
+  it('returns six Monday-first weeks covering the whole month', () => {
+    const grid = monthGridISO('2026-09-30');
+
+    expect(grid).toHaveLength(42);
+    // September 2026 starts on a Tuesday, so the grid opens on Monday 31 Aug.
+    expect(grid[0]).toBe('2026-08-31');
+    expect(grid[1]).toBe('2026-09-01');
+    expect(grid).toContain('2026-09-30');
+    expect(grid.at(-1)).toBe('2026-10-11');
+  });
+
+  it('starts exactly on the 1st when the month begins on a Monday', () => {
+    // June 2026 starts on a Monday.
+    expect(monthGridISO('2026-06-10')[0]).toBe('2026-06-01');
+  });
+
+  it('is empty for an unparseable anchor', () => {
+    expect(monthGridISO('nope')).toEqual([]);
+  });
+});
+
+describe('isSameMonth', () => {
+  it('compares calendar month and year, not the day', () => {
+    expect(isSameMonth('2026-09-01', '2026-09-30')).toBe(true);
+    expect(isSameMonth('2026-10-01', '2026-09-30')).toBe(false);
+    expect(isSameMonth('2025-09-01', '2026-09-30')).toBe(false);
+  });
+
+  it('is false for unparseable input', () => {
+    expect(isSameMonth('nope', '2026-09-30')).toBe(false);
+  });
+});
 
 describe('date helpers', () => {
   it('formats dates as local ISO calendar days', () => {

@@ -33,6 +33,42 @@ export function addDaysISO(iso: string, days: number): string {
   return toISODate(date);
 }
 
+/** Shifts an ISO calendar date by a number of months, clamping to the month length. */
+export function addMonthsISO(iso: string, months: number): string {
+  const date = parseISODate(iso);
+  if (!date) return iso;
+  const day = date.getDate();
+  date.setDate(1);
+  date.setMonth(date.getMonth() + months);
+  // Clamp: Jan 31 + 1 month would otherwise overflow into March.
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  date.setDate(Math.min(day, lastDay));
+  return toISODate(date);
+}
+
+/**
+ * The 42 ISO dates (6 weeks) covering a month grid, Monday-first.
+ * Includes the leading/next-month days so every week is a full rectangle and the
+ * grid never reflows as the user pages between months.
+ */
+export function monthGridISO(anchorISO: string): string[] {
+  const anchor = parseISODate(anchorISO);
+  if (!anchor) return [];
+  const firstOfMonth = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+  // getDay() is Sunday=0; shift so Monday=0.
+  const leadingBlanks = (firstOfMonth.getDay() + 6) % 7;
+  const gridStart = addDaysISO(toISODate(firstOfMonth), -leadingBlanks);
+  return Array.from({ length: 42 }, (_, index) => addDaysISO(gridStart, index));
+}
+
+/** True when the ISO date falls in the same calendar month as `anchorISO`. */
+export function isSameMonth(iso: string, anchorISO: string): boolean {
+  const date = parseISODate(iso);
+  const anchor = parseISODate(anchorISO);
+  if (!date || !anchor) return false;
+  return date.getFullYear() === anchor.getFullYear() && date.getMonth() === anchor.getMonth();
+}
+
 /** Whole calendar days from `fromISO` to `toISO` (negative when `toISO` is in the past). */
 export function calendarDaysBetween(fromISO: string, toISO: string): number {
   const from = parseISODate(fromISO);

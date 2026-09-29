@@ -162,22 +162,45 @@ describe('App', () => {
     expect(await screen.findByText('1:30:00')).toBeInTheDocument();
   });
 
-  it('filters the list to a day picked in the week strip', async () => {
+  it('filters the list to a day picked in the calendar', async () => {
     const user = await renderApp();
     await addTask(user, 'Run a 25 minute focus session');
 
-    await user.click(screen.getByRole('button', { name: /, today/ }));
+    await user.click(screen.getByRole('gridcell', { name: /, today/ }));
 
     expect(screen.getByText(/Showing tasks due/)).toBeInTheDocument();
   });
 
-  it('marks today in the week strip and captions dates readably', async () => {
+  it('pages forward and back through months', async () => {
+    const user = await renderApp();
+    const monthName = (offset: number) =>
+      new Date(new Date().getFullYear(), new Date().getMonth() + offset, 1).toLocaleDateString(
+        undefined,
+        { month: 'long' },
+      );
+
+    expect(screen.getByRole('grid', { name: new RegExp(monthName(0)) })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next month' }));
+    expect(await screen.findByRole('grid', { name: new RegExp(monthName(1)) })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Previous month' }));
+    await user.click(screen.getByRole('button', { name: 'Previous month' }));
+    expect(await screen.findByRole('grid', { name: new RegExp(monthName(-1)) })).toBeInTheDocument();
+  });
+
+  it('shows a full month of square cells with today marked', async () => {
+    await renderApp();
+
+    expect(screen.getAllByRole('gridcell')).toHaveLength(42);
+    expect(screen.getByRole('gridcell', { name: /, today/ })).toBeInTheDocument();
+  });
+
+  it('captions the composer date readably', async () => {
     const user = await renderApp();
 
-    // The week strip labels the current day so it is identifiable at a glance.
-    expect(await screen.findByRole('button', { name: /, today/ })).toBeInTheDocument();
-    // The composer shows no caption while the picker is empty, then a readable
-    // one ("Today", "Sep 29, 2026") instead of bare dd/mm/yyyy numbers.
+    // No caption while the picker is empty; a readable one ("Today", "Sep 29, 2026")
+    // once a date is chosen, instead of bare dd/mm/yyyy numbers.
     expect(screen.queryByText('No date')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Today' }));
     expect(screen.getAllByText('Today').length).toBeGreaterThan(0);

@@ -246,6 +246,16 @@ These are real problems hit while building this app. They are the highest-value 
     can never delete something a real user typed. Two traps: `parseState` unlinks orphaned
     notes *before* `migrate` runs, so re-check `taskId` afterwards; and do not null every
     `taskId` in the migration, or legitimate note→task links break.
+22. **Reset `list-style` on any `<ol>`/`<ul>` you style as a grid.** The calendar's day row was
+    an `<ol className="week__days">` with `display: grid`; the browser's default `list-style`
+    then rendered "1. 2. 3." markers next to every cell, and the markers moved when the grid
+    reflowed. Grep for list elements before assuming a grid has no markers. It is now a plain
+    `role="grid"` div of `<button role="gridcell">` elements.
+23. **Give sibling form controls one shared height token.** The composer mixed a padded
+    `.button`, a native `<select>`, and a date field with a stacked caption. The grid centred
+    items of different intrinsic heights, so the row never lined up. A single
+    `--control-h` custom property with `min-height` on each control fixed it — capture the
+    cause, not the symptom, and don't stack a caption above a control in a horizontal row.
 
 Add to this document whenever an agent:
 - discovers a repo-specific gotcha (put it in "Lessons learned" with the symptom and the fix),

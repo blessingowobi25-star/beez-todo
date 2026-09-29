@@ -15,8 +15,9 @@ The layout follows the supplied mobile planner mockup:
 
 - **Compact hero** — a one-line count of open tasks plus the next task worth doing. No greeting,
   no duplicated date, no dead notification bell.
-- **Calendar week strip** — seven day cards; the current day is outlined and labelled "Today",
-  and days show a count of tasks due. Picking a day filters the list to that date.
+- **Month calendar** — a 7×6 grid of square day cells with month/year navigation. Today is
+  outlined and marked with a dot; days with due tasks show a count badge. Selecting a day
+  filters the list to that date, and selecting a spill-over day follows it into that month.
 - **Empty by default** — a new visitor sees no tasks at all and a single "Welcome to Beez"
   note. Demo tasks are only available behind the explicit **Data → Load sample data** action.
 - **Pastel cards** — lilac / sky / peach / mint statistic tiles and sticky-style notes. Tapping a
@@ -47,8 +48,8 @@ the device itself is in dark mode.
 1. **Focus timer with any duration** — 15/25/50 minute presets *and* a custom field where you type
    hours and minutes (1 minute to 8 hours). Each finished session is logged against the selected
    task, so you can see where your time went.
-2. **Planner dashboard** — greeting hero, next-task card and a calendar week strip that filters
-   the list by the day you tap.
+2. **Month calendar** — a month grid that filters the list by the day you tap, with
+   month/year paging.
 3. **Progress tiles** — completion %, active, due today, overdue and total focus sessions.
 4. **JSON backup** — export/import your whole workspace, plus "load sample data" and "reset".
 5. **Light/dark theme**, keyboard shortcuts (`/`, `n`, `d`, `Esc`), a mobile bottom nav and a
