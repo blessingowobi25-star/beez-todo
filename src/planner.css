@@ -1,10 +1,10 @@
-/* SVG icons must not stretch inside flex rows (AGENTS.md lesson 11). */
+/* `display: block` keeps the glyph from stretching, but on a non-flex chip it
+   also forces the icon onto its own line. Chips are made `inline-flex` below so
+   the icon and label stay on one line. */
 .button svg,
 .icon-button svg,
 .chip svg,
 .stat-card__value svg,
-.hero__hint svg,
-.hero__date svg,
 .menu__item svg,
 .bottom-nav__item svg {
   flex: none;

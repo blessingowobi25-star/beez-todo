@@ -338,6 +338,11 @@ textarea.input {
 }
 
 .chip {
+  /* inline-flex keeps an icon and its label on one line; a plain inline chip
+     lets the `display: block` icon drop onto its own row. */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.3rem 0.65rem;
   border: 1px solid var(--border-strong);
   border-radius: 999px;

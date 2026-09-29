@@ -238,6 +238,14 @@ These are real problems hit while building this app. They are the highest-value 
 20. **Don't ship controls that do nothing.** The header notification bell had no handler and
     the hero had a decorative gradient orb; both were removed rather than patched. A control
     either has an action or is not rendered.
+21. **Removing seeded content does not remove it from existing users' storage.** When the
+    demo tasks/notes were dropped from `createSeedState`, returning visitors still saw the
+    old "Deploy checklist" note, because it was already in their `localStorage`. Seeding is
+    a *first-run* path only. To retract content that shipped earlier, bump `SCHEMA_VERSION`
+    and add an explicit allow-list filter in `migrate`, gated on `state.version < N` so it
+    can never delete something a real user typed. Two traps: `parseState` unlinks orphaned
+    notes *before* `migrate` runs, so re-check `taskId` afterwards; and do not null every
+    `taskId` in the migration, or legitimate note→task links break.
 
 Add to this document whenever an agent:
 - discovers a repo-specific gotcha (put it in "Lessons learned" with the symptom and the fix),

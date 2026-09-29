@@ -72,6 +72,58 @@ describe('parseState', () => {
     expect(() => parseState({ hello: 'world' }, NOW)).toThrow('does not contain');
   });
 
+  it('strips retired demo content from pre-v3 saves but keeps real user data', () => {
+    const state = parseState(
+      {
+        version: 2,
+        tasks: [
+          { id: 'task_demo', title: 'Try BeezTodo: add your first task' },
+          { id: 'task_mine', title: 'My real task' },
+        ],
+        notes: [
+          { id: 'note_deploy', title: 'Deploy checklist', body: '1. npm run test' },
+          { id: 'note_linked', title: 'My real note', body: 'keep me', taskId: 'task_mine' },
+        ],
+      },
+      NOW,
+    );
+
+    expect(state.tasks.map((task) => task.id)).toEqual(['task_mine']);
+    expect(state.notes.map((note) => note.id)).toEqual(['note_linked']);
+    // The link to a surviving task is preserved.
+    expect(state.notes[0].taskId).toBe('task_mine');
+    expect(state.version).toBe(SCHEMA_VERSION);
+  });
+
+  it('unlinks a note when the migration removes the task it pointed at', () => {
+    const state = parseState(
+      {
+        version: 2,
+        tasks: [{ id: 'task_demo', title: 'Run a 25 minute focus session' }],
+        notes: [{ id: 'note_mine', title: 'My real note', body: 'x', taskId: 'task_demo' }],
+      },
+      NOW,
+    );
+
+    expect(state.tasks).toEqual([]);
+    expect(state.notes[0].taskId).toBeNull();
+  });
+
+  // The demo titles are ordinary words; a user may legitimately have typed one
+  // themselves, so the filter must only apply to pre-v3 payloads.
+  it('never strips a same-titled task from a current-version save', () => {
+    const state = parseState(
+      {
+        version: SCHEMA_VERSION,
+        tasks: [{ id: 'task_mine', title: 'Run a 25 minute focus session' }],
+        notes: [],
+      },
+      NOW,
+    );
+
+    expect(state.tasks.map((task) => task.id)).toEqual(['task_mine']);
+  });
+
   it('drops malformed records and unlinks orphaned notes', () => {
     const state = parseState(
       {

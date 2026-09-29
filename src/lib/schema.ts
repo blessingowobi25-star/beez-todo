@@ -5,7 +5,7 @@ import { createTask } from './taskUtils';
 import { normalizeTag } from './taskUtils';
 
 /** Bump when the persisted shape changes and add a forward-fix in `migrate`. */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export const DEFAULT_FILTER: TaskFilter = {
   query: '',
@@ -117,14 +117,46 @@ export function parseFilter(raw: unknown): TaskFilter {
   };
 }
 
+/**
+ * Titles of the demo content that earlier versions seeded into `localStorage`.
+ * Version 3 removed that seeding, so anyone who visited before the change still
+ * has it saved; `migrate` drops exactly these records and nothing else.
+ */
+const LEGACY_DEMO_TASK_TITLES = new Set([
+  'Try BeezTodo: add your first task',
+  'Try Beez: add your first task',
+  'Capture an idea in the Notes panel',
+  'Run a 25 minute focus session',
+  'Sketch the layout of the app',
+]);
+
+const LEGACY_DEMO_NOTE_TITLES = new Set([
+  'Deploy checklist',
+  'Welcome to BeezTodo 👋',
+  'Welcome to BeezTodo',
+]);
+
 /** Applies forward-compatible fixes to older payloads. Safe to call on current data. */
 export function migrate(state: AppState): AppState {
-  const tasks = state.tasks.map((task) => ({
-    ...task,
-    tags: task.tags ?? [],
-    focusSessions: task.focusSessions ?? 0,
-  }));
-  return { ...state, version: SCHEMA_VERSION, tasks };
+  // Only pre-v3 payloads can contain the retired demo content; running this on
+  // newer data would risk deleting a task a user genuinely typed themselves.
+  const carriesLegacyDemo = state.version < 3;
+
+  const tasks = state.tasks
+    .filter((task) => !carriesLegacyDemo || !LEGACY_DEMO_TASK_TITLES.has(task.title))
+    .map((task) => ({
+      ...task,
+      tags: task.tags ?? [],
+      focusSessions: task.focusSessions ?? 0,
+    }));
+
+  // Notes keep their taskId here: `parseState` already unlinks notes whose task
+  // was dropped, and nulling every link would break legitimate attachments.
+  const notes = state.notes.filter(
+    (note) => !carriesLegacyDemo || !LEGACY_DEMO_NOTE_TITLES.has(note.title),
+  );
+
+  return { ...state, version: SCHEMA_VERSION, tasks, notes };
 }
 
 /**
@@ -150,7 +182,7 @@ export function parseState(raw: unknown, now: Date = new Date()): AppState {
     .filter((note): note is Note => note !== null)
     .map((note) => (note.taskId && !taskIds.has(note.taskId) ? { ...note, taskId: null } : note));
 
-  return migrate({
+  const migrated = migrate({
     version: typeof raw.version === 'number' ? raw.version : SCHEMA_VERSION,
     tasks,
     notes,
@@ -158,6 +190,16 @@ export function parseState(raw: unknown, now: Date = new Date()): AppState {
     sort: asOneOf<SortMode>(raw.sort, SORT_MODES, 'manual'),
     filter: parseFilter(raw.filter),
   });
+
+  // Re-check links: `migrate` can drop demo tasks that were still present when
+  // the orphan pass above ran, so a note would otherwise keep a dangling taskId.
+  const survivingTaskIds = new Set(migrated.tasks.map((task) => task.id));
+  return {
+    ...migrated,
+    notes: migrated.notes.map((note) =>
+      note.taskId && !survivingTaskIds.has(note.taskId) ? { ...note, taskId: null } : note,
+    ),
+  };
 }
 
 export function serializeState(state: AppState): string {
