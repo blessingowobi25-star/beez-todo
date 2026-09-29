@@ -65,13 +65,12 @@ export function Header({
       <div className="app-header__actions">
         <button
           type="button"
-          className="button button--ghost"
+          className="icon-button"
           onClick={onToggleTheme}
           aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
           title="Toggle theme (press D)"
         >
-          {theme === 'dark' ? <IconSun width={17} height={17} /> : <IconMoon width={17} height={17} />}
-          {theme === 'dark' ? ' Light' : ' Dark'}
+          {theme === 'dark' ? <IconSun width={18} height={18} /> : <IconMoon width={18} height={18} />}
         </button>
 
         <div className="menu">
