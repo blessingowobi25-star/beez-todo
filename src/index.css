@@ -702,22 +702,41 @@ textarea.input {
   gap: 0.6rem;
 }
 
+/* One shared control height so every field in the composer row lines up
+   exactly. Without it the grid centres items of different intrinsic heights
+   and the date picker drifts out of line with its neighbours. */
+.composer {
+  --control-h: 2.5rem;
+}
+
 .composer__row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto auto;
   gap: 0.5rem;
+  align-items: stretch;
 }
 
+.composer__row > .input,
+.composer__row > .composer__date-field,
+.composer__row > .button {
+  min-height: var(--control-h);
+}
+
+/* The readable date sits inline with the native picker inside one bordered
+   control, rather than stacked above it — a caption above the input made this
+   cell taller than its siblings and broke the row alignment. */
 .composer__date-field {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  min-width: 0;
 }
 
-/* Readable date caption above the native picker. The native control renders
-   dd/mm/yyyy segments that read as unexplained numbers, so the caption is what
-   the user actually reads. */
 .composer__date-label {
   font-size: 0.66rem;
   font-weight: 700;
@@ -728,10 +747,33 @@ textarea.input {
   text-overflow: ellipsis;
 }
 
-.composer__date,
+/* The border lives on the wrapper, so the inner picker must not double it up. */
+.composer__date {
+  width: auto;
+  min-width: 0;
+  flex: 1;
+  padding: 0 0.2rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  min-height: 0;
+}
+
+.composer__title {
+  min-height: var(--control-h);
+}
+
 .composer__priority {
   width: auto;
   min-width: 130px;
+  min-height: var(--control-h);
+}
+
+/* The Add-task button must match the field height, not its own padding. */
+.composer__row > .button {
+  justify-content: center;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .composer__meta {
@@ -1421,7 +1463,7 @@ textarea.input {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .composer__date,
+  .composer__date-field,
   .composer__priority {
     min-width: 0;
   }

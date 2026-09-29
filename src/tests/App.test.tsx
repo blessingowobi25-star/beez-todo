@@ -176,10 +176,10 @@ describe('App', () => {
 
     // The week strip labels the current day so it is identifiable at a glance.
     expect(await screen.findByRole('button', { name: /, today/ })).toBeInTheDocument();
-    // The composer shows "No date"/"Today" rather than bare dd/mm/yyyy numbers.
-    expect(screen.getByText('No date')).toBeInTheDocument();
+    // The composer shows no caption while the picker is empty, then a readable
+    // one ("Today", "Sep 29, 2026") instead of bare dd/mm/yyyy numbers.
+    expect(screen.queryByText('No date')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Today' }));
-    // The caption flips to "Today" and the raw picker value is set.
     expect(screen.getAllByText('Today').length).toBeGreaterThan(0);
     expect(screen.getByLabelText('Due date')).toHaveValue(todayISO());
   });

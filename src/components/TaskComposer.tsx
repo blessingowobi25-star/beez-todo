@@ -42,11 +42,7 @@ export function TaskComposer({ inputRef, onAdd }: TaskComposerProps) {
 
   // A plain readable label beats the native dd/mm/yyyy segments, which looked
   // like arbitrary numbers to users and re-format per browser locale.
-  const dueLabel = !dueDate
-    ? 'No date'
-    : dueDate === todayISO()
-      ? 'Today'
-      : formatLongDate(dueDate);
+  const dueLabel = dueDate === todayISO() ? 'Today' : formatLongDate(dueDate);
 
   return (
     <form className="composer card" onSubmit={handleSubmit} aria-label="Add a task">
@@ -61,7 +57,10 @@ export function TaskComposer({ inputRef, onAdd }: TaskComposerProps) {
         />
 
         <label className="composer__date-field">
-          <span className="composer__date-label">{dueLabel}</span>
+          {/* The native picker renders dd/mm/yyyy segments that read as bare
+              numbers, so a readable caption appears once a date is chosen. Left
+              out entirely when empty, where the empty picker says it already. */}
+          {dueDate ? <span className="composer__date-label">{dueLabel}</span> : null}
           <input
             type="date"
             className="input composer__date"
