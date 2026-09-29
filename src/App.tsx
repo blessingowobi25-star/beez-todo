@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BottomNav } from './components/BottomNav';
-import { DashboardHero, pickNextTask } from './components/DashboardHero';
 import { FilterBar } from './components/FilterBar';
 import { FocusTimer } from './components/FocusTimer';
 import { Header } from './components/Header';
@@ -46,7 +45,6 @@ export default function App() {
   );
 
   const { toggleTheme } = store;
-  const nextTask = useMemo(() => pickNextTask(state.tasks), [state.tasks]);
   const dayCounts = useMemo(() => {
     const map = new Map<string, number>();
     for (const task of state.tasks) {
@@ -113,19 +111,6 @@ export default function App() {
         onReplaceState={store.replaceState}
         onResetData={store.resetData}
         onLoadSample={store.loadSampleData}
-      />
-
-      <DashboardHero
-        stats={stats}
-        nextTask={nextTask}
-        onFocusTask={(id) => {
-          setFocusTaskId(id);
-          setSection('focus');
-        }}
-        onAddTask={() => {
-          setSection('home');
-          composerRef.current?.focus();
-        }}
       />
 
       <div className="app__mobile-pane" data-active={section === 'calendar'}>

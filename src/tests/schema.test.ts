@@ -124,6 +124,24 @@ describe('parseState', () => {
     expect(state.tasks.map((task) => task.id)).toEqual(['task_mine']);
   });
 
+  it('strips the original TaskFlow-era demo task from an already-migrated v3 save', () => {
+    const state = parseState(
+      {
+        // Stamped v3 by the previous cleanup, so a v3-only filter would skip it.
+        version: 3,
+        tasks: [
+          { id: 'task_old', title: 'Try TaskFlow: add your first task' },
+          { id: 'task_mine', title: 'Something I wrote' },
+        ],
+        notes: [],
+      },
+      NOW,
+    );
+
+    expect(state.tasks.map((task) => task.id)).toEqual(['task_mine']);
+    expect(state.version).toBe(SCHEMA_VERSION);
+  });
+
   it('drops malformed records and unlinks orphaned notes', () => {
     const state = parseState(
       {

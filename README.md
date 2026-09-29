@@ -13,8 +13,6 @@ stored in the browser and works offline after the first load.
 
 The layout follows the supplied mobile planner mockup:
 
-- **Compact hero** — a one-line count of open tasks plus the next task worth doing. No greeting,
-  no duplicated date, no dead notification bell.
 - **Month calendar** — a 7×6 grid of square day cells with month/year navigation. Today is
   outlined and marked with a dot; days with due tasks show a count badge. Selecting a day
   filters the list to that date, and selecting a spill-over day follows it into that month.

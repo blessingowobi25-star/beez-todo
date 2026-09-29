@@ -4,8 +4,14 @@ import { createNote } from './noteUtils';
 import { createTask } from './taskUtils';
 import { normalizeTag } from './taskUtils';
 
-/** Bump when the persisted shape changes and add a forward-fix in `migrate`. */
-export const SCHEMA_VERSION = 3;
+/**
+ * Bump when the persisted shape changes and add a forward-fix in `migrate`.
+ *
+ * 4 — widen the legacy-demo allow-list to cover the original "Try TaskFlow" title.
+ *     Required: v3 saves are already stamped `version: 3`, so a v3-only cleanup
+ *     would never re-run for users who had already been migrated.
+ */
+export const SCHEMA_VERSION = 4;
 
 export const DEFAULT_FILTER: TaskFilter = {
   query: '',
@@ -123,6 +129,8 @@ export function parseFilter(raw: unknown): TaskFilter {
  * has it saved; `migrate` drops exactly these records and nothing else.
  */
 const LEGACY_DEMO_TASK_TITLES = new Set([
+  // Earliest build seeded this exact wording, before the product was renamed.
+  'Try TaskFlow: add your first task',
   'Try BeezTodo: add your first task',
   'Try Beez: add your first task',
   'Capture an idea in the Notes panel',
@@ -138,12 +146,14 @@ const LEGACY_DEMO_NOTE_TITLES = new Set([
 
 /** Applies forward-compatible fixes to older payloads. Safe to call on current data. */
 export function migrate(state: AppState): AppState {
-  // Only pre-v3 payloads can contain the retired demo content; running this on
+  // Only pre-v4 payloads can contain the retired demo content; running this on
   // newer data would risk deleting a task a user genuinely typed themselves.
-  const carriesLegacyDemo = state.version < 3;
+  const carriesLegacyDemo = state.version < 4;
+
+  if (!carriesLegacyDemo) return { ...state, version: SCHEMA_VERSION };
 
   const tasks = state.tasks
-    .filter((task) => !carriesLegacyDemo || !LEGACY_DEMO_TASK_TITLES.has(task.title))
+    .filter((task) => !LEGACY_DEMO_TASK_TITLES.has(task.title))
     .map((task) => ({
       ...task,
       tags: task.tags ?? [],
@@ -152,9 +162,7 @@ export function migrate(state: AppState): AppState {
 
   // Notes keep their taskId here: `parseState` already unlinks notes whose task
   // was dropped, and nulling every link would break legitimate attachments.
-  const notes = state.notes.filter(
-    (note) => !carriesLegacyDemo || !LEGACY_DEMO_NOTE_TITLES.has(note.title),
-  );
+  const notes = state.notes.filter((note) => !LEGACY_DEMO_NOTE_TITLES.has(note.title));
 
   return { ...state, version: SCHEMA_VERSION, tasks, notes };
 }

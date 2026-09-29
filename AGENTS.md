@@ -256,6 +256,15 @@ These are real problems hit while building this app. They are the highest-value 
     items of different intrinsic heights, so the row never lined up. A single
     `--control-h` custom property with `min-height` on each control fixed it — capture the
     cause, not the symptom, and don't stack a caption above a control in a horizontal row.
+24. **Widening a migration filter needs a NEW schema version, not the same one.** The
+    legacy-demo cleanup shipped as v3 and stamped every save `version: 3`. Widening the
+    title list under the *same* version silently did nothing for exactly the people it
+    targeted — their data already read `3`, so `version < 3` was false. Any change to a
+    `migrate` rule that must affect already-migrated users requires a bump to
+    `SCHEMA_VERSION`; a v3-save regression test pins this.
+25. **If a section is removed, delete the component and its CSS, not just the render.**
+    `DashboardHero.tsx` and ~180 lines of `.hero*` rules went together; a grep for the
+    block/class names afterwards is the check (per lesson 15).
 
 Add to this document whenever an agent:
 - discovers a repo-specific gotcha (put it in "Lessons learned" with the symptom and the fix),
