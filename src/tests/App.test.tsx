@@ -55,6 +55,38 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Visible after filtering' })).toBeInTheDocument();
   });
 
+  it('explains why Add task does nothing when the title is empty', async () => {
+    const user = await renderApp();
+
+    // The button must stay clickable: a disabled button gives no reason.
+    const addButton = screen.getByRole('button', { name: 'Add task' });
+    expect(addButton).toBeEnabled();
+
+    // Fill the optional fields but no title, then try to submit.
+    await user.click(screen.getByRole('button', { name: 'Add details' }));
+    await user.type(screen.getByLabelText('Task description'), 'Some detail');
+    await user.type(screen.getByLabelText('Tags'), 'docs');
+    await user.click(addButton);
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Give the task a title first.');
+    expect(screen.getByLabelText('Task title')).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('saves the details once a title is supplied', async () => {
+    const user = await renderApp();
+
+    await user.click(screen.getByRole('button', { name: 'Add details' }));
+    await user.type(screen.getByLabelText('Task title'), 'Write the report');
+    await user.type(screen.getByLabelText('Task description'), 'Some detail');
+    await user.type(screen.getByLabelText('Tags'), 'docs, launch');
+    await user.click(screen.getByRole('button', { name: 'Add task' }));
+
+    expect(screen.getByRole('button', { name: 'Write the report' })).toBeInTheDocument();
+    const saved = window.localStorage.getItem('beeztodo:state') ?? '';
+    expect(saved).toContain('Some detail');
+    expect(saved).toContain('docs');
+  });
+
   it('completes a task and reflects it in the stats', async () => {
     const user = await renderApp();
     const title = 'Write the submission form';

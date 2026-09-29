@@ -265,6 +265,14 @@ These are real problems hit while building this app. They are the highest-value 
 25. **If a section is removed, delete the component and its CSS, not just the render.**
     `DashboardHero.tsx` and ~180 lines of `.hero*` rules went together; a grep for the
     block/class names afterwards is the check (per lesson 15).
+26. **Never `disabled` a submit button to enforce validation.** The composer's "Add task"
+    was `disabled={!title.trim()}`, so filling only description/tags left a dead button
+    that gave no reason. Validation belongs in the submit handler, with a visible message
+    plus `aria-invalid`/`aria-describedby`; the error clears on the next keystroke.
+27. **Use `height`, not `min-height`, for a shared control-size token.** With `min-height`,
+    any taller content (a stacked caption, a long word) stretches one grid cell and
+    re-ragged the whole row. `height` + `box-sizing: border-box` makes the row structurally
+    un-alignable only if markup changes.
 
 Add to this document whenever an agent:
 - discovers a repo-specific gotcha (put it in "Lessons learned" with the symptom and the fix),

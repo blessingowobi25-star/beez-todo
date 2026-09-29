@@ -18,11 +18,18 @@ export function TaskComposer({ inputRef, onAdd }: TaskComposerProps) {
   const [tags, setTags] = useState('');
   const [description, setDescription] = useState('');
   const [detailsOpen, setDetailsOpen] = useState(false);
+  // The submit button is never disabled: a dead button tells the user nothing
+  // about *why* nothing happened. Pressing it without a title explains itself.
+  const [titleError, setTitleError] = useState('');
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = title.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      setTitleError('Give the task a title first.');
+      inputRef.current?.focus();
+      return;
+    }
 
     onAdd({
       title: trimmed,
@@ -37,6 +44,7 @@ export function TaskComposer({ inputRef, onAdd }: TaskComposerProps) {
     setTags('');
     setDueDate('');
     setDetailsOpen(false);
+    setTitleError('');
     inputRef.current?.focus();
   }
 
@@ -49,11 +57,16 @@ export function TaskComposer({ inputRef, onAdd }: TaskComposerProps) {
       <div className="composer__row">
         <input
           ref={inputRef}
-          className="input composer__title"
+          className={`input composer__title${titleError ? ' input--invalid' : ''}`}
           placeholder="What needs to be done?"
           aria-label="Task title"
+          aria-invalid={titleError ? true : undefined}
+          aria-describedby={titleError ? 'composer-title-error' : undefined}
           value={title}
-          onChange={(event) => setTitle(event.target.value)}
+          onChange={(event) => {
+            setTitle(event.target.value);
+            if (titleError) setTitleError('');
+          }}
         />
 
         <label className="composer__date-field">
@@ -83,10 +96,16 @@ export function TaskComposer({ inputRef, onAdd }: TaskComposerProps) {
           ))}
         </select>
 
-        <button type="submit" className="button button--primary" disabled={!title.trim()}>
+        <button type="submit" className="button button--primary">
           <IconPlus width={16} height={16} /> Add task
         </button>
       </div>
+
+      {titleError ? (
+        <p className="composer__error" id="composer-title-error" role="status">
+          {titleError}
+        </p>
+      ) : null}
 
       <div className="composer__meta">
         <div className="chip-row">
@@ -118,21 +137,27 @@ export function TaskComposer({ inputRef, onAdd }: TaskComposerProps) {
 
       {detailsOpen ? (
         <div className="composer__details">
-          <textarea
-            className="input composer__description"
-            placeholder="Description (optional)"
-            aria-label="Task description"
-            rows={2}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          />
-          <input
-            className="input"
-            placeholder="Tags, comma separated (e.g. docs, launch)"
-            aria-label="Tags"
-            value={tags}
-            onChange={(event) => setTags(event.target.value)}
-          />
+          <label className="composer__field">
+            <span className="composer__field-label">Description</span>
+            <textarea
+              className="input composer__description"
+              placeholder="Add more detail (optional)"
+              aria-label="Task description"
+              rows={2}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+            />
+          </label>
+          <label className="composer__field">
+            <span className="composer__field-label">Tags</span>
+            <input
+              className="input"
+              placeholder="docs, launch"
+              aria-label="Tags"
+              value={tags}
+              onChange={(event) => setTags(event.target.value)}
+            />
+          </label>
         </div>
       ) : null}
     </form>

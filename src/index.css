@@ -705,11 +705,12 @@ textarea.input {
   gap: 0.6rem;
 }
 
-/* One shared control height so every field in the composer row lines up
-   exactly. Without it the grid centres items of different intrinsic heights
-   and the date picker drifts out of line with its neighbours. */
+/* One shared control height so every field in the composer row lines up exactly.
+   `height` (not `min-height`) is deliberate: a min-height lets taller content
+   stretch one cell and re-ragged the row, which is what a stacked date caption
+   used to do. `border-box` keeps the border inside the token. */
 .composer {
-  --control-h: 2.5rem;
+  --control-h: 2.6rem;
 }
 
 .composer__row {
@@ -722,22 +723,24 @@ textarea.input {
 .composer__row > .input,
 .composer__row > .composer__date-field,
 .composer__row > .button {
-  min-height: var(--control-h);
+  height: var(--control-h);
+  box-sizing: border-box;
 }
 
 /* The readable date sits inline with the native picker inside one bordered
-   control, rather than stacked above it — a caption above the input made this
-   cell taller than its siblings and broke the row alignment. */
+   control. Keeping it on a single line is what stops this cell from growing
+   taller than its siblings and breaking the row alignment. */
 .composer__date-field {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0 0.7rem;
+  padding: 0 0.6rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
   min-width: 0;
+  overflow: hidden;
 }
 
 .composer__date-label {
@@ -746,20 +749,18 @@ textarea.input {
   letter-spacing: 0.02em;
   color: var(--text-muted);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: none;
 }
 
 /* The border lives on the wrapper, so the inner picker must not double it up. */
 .composer__date {
-  width: auto;
+  width: 100%;
   min-width: 0;
   flex: 1;
-  padding: 0 0.2rem;
+  padding: 0;
   border: 0;
   background: transparent;
   color: inherit;
-  min-height: 0;
 }
 
 .composer__title {
@@ -769,7 +770,6 @@ textarea.input {
 .composer__priority {
   width: auto;
   min-width: 130px;
-  min-height: var(--control-h);
 }
 
 /* The Add-task button must match the field height, not its own padding. */
@@ -779,12 +779,41 @@ textarea.input {
   padding-bottom: 0;
 }
 
+.composer__error {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.input--invalid {
+  border-color: var(--danger);
+}
+
+.input--invalid:focus-visible {
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
 .composer__meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.6rem;
   flex-wrap: wrap;
+}
+
+.composer__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.composer__field-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .composer__details {
