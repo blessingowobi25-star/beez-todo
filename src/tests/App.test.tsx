@@ -13,8 +13,8 @@ async function renderApp() {
 describe('App', () => {
   it('shows the seeded task list on first load', async () => {
     await renderApp();
-    expect(screen.getByRole('button', { name: 'Try TaskFlow: add your first task' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Welcome to TaskFlow/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Try BeezTodo: add your first task' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Welcome to BeezTodo/ })).toBeInTheDocument();
   });
 
   it('adds a task from the composer and persists it', async () => {
@@ -25,12 +25,12 @@ describe('App', () => {
 
     expect(screen.getByRole('button', { name: 'Write the submission form' })).toBeInTheDocument();
     expect(screen.getByLabelText('Task title')).toHaveValue('');
-    expect(window.localStorage.getItem('taskflow:state')).toContain('Write the submission form');
+    expect(window.localStorage.getItem('beeztodo:state')).toContain('Write the submission form');
   });
 
   it('completes a task and reflects it in the stats', async () => {
     const user = await renderApp();
-    const title = 'Try TaskFlow: add your first task';
+    const title = 'Try BeezTodo: add your first task';
 
     await user.click(screen.getByLabelText(`Mark "${title}" as complete`));
 
@@ -45,7 +45,7 @@ describe('App', () => {
 
     expect(screen.getByRole('button', { name: 'Sketch the layout of the app' })).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Try TaskFlow: add your first task' }),
+      screen.queryByRole('button', { name: 'Try BeezTodo: add your first task' }),
     ).not.toBeInTheDocument();
   });
 
@@ -75,7 +75,7 @@ describe('App', () => {
 
   it('deletes a task and restores it with undo', async () => {
     const user = await renderApp();
-    const title = 'Try TaskFlow: add your first task';
+    const title = 'Try BeezTodo: add your first task';
 
     await user.click(screen.getAllByTitle('Delete task')[0]);
 
@@ -96,5 +96,31 @@ describe('App', () => {
 
     await user.keyboard('/');
     expect(screen.getByLabelText('Search tasks')).toHaveFocus();
+  });
+
+  it('sets a custom focus duration from hours and minutes', async () => {
+    const user = await renderApp();
+
+    await user.click(screen.getByRole('button', { name: 'Custom' }));
+
+    // The panel is conditional markup, so wait for it rather than assuming it is there.
+    const hoursInput = await screen.findByLabelText('Custom hours');
+    const minutesInput = await screen.findByLabelText('Custom minutes');
+    await user.clear(hoursInput);
+    await user.type(hoursInput, '1');
+    await user.clear(minutesInput);
+    await user.type(minutesInput, '30');
+    await user.click(screen.getByRole('button', { name: 'Set' }));
+
+    expect(await screen.findByText('1:30:00')).toBeInTheDocument();
+  });
+
+  it('filters the list to a day picked in the week strip', async () => {
+    const user = await renderApp();
+
+    await user.click(screen.getByRole('button', { name: /^Mon/ }));
+
+    expect(screen.getByText(/Showing tasks due/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Run a 25 minute focus session' })).not.toBeInTheDocument();
   });
 });

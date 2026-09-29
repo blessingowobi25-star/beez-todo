@@ -129,7 +129,7 @@ export function migrate(state: AppState): AppState {
  * malformed tasks/notes are skipped, and notes pointing at missing tasks are unlinked.
  */
 export function parseState(raw: unknown, now: Date = new Date()): AppState {
-  if (!isRecord(raw)) throw new Error('Backup is not a TaskFlow object.');
+  if (!isRecord(raw)) throw new Error('Backup is not a BeezTodo object.');
   if (!('tasks' in raw) && !('notes' in raw)) {
     throw new Error('Backup does not contain a "tasks" or "notes" list.');
   }
@@ -171,7 +171,7 @@ export function createSeedState(now: Date = new Date()): AppState {
 
   const kickoffTask = createTask(
     {
-      title: 'Try TaskFlow: add your first task',
+      title: 'Try BeezTodo: add your first task',
       description: 'Type a title, press Enter, then tick the checkbox to complete it.',
       priority: 'high',
       dueDate: today,
@@ -212,7 +212,7 @@ export function createSeedState(now: Date = new Date()): AppState {
   const welcomeNote = {
     ...createNote(
       {
-        title: 'Welcome to TaskFlow 👋',
+        title: 'Welcome to BeezTodo 👋',
         body: [
           'Everything you type is saved in this browser instantly - no account, no server.',
           '',

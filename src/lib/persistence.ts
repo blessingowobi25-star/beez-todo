@@ -1,9 +1,13 @@
 import type { AppState, ThemeName } from '../types';
 import { parseState, serializeState } from './schema';
 
-export const STORAGE_KEY = 'taskflow:state';
+export const STORAGE_KEY = 'beeztodo:state';
+/** Previous key kept as a read fallback so existing users keep their data. */
+export const LEGACY_STORAGE_KEY = 'taskflow:state';
 /** Mirrored theme so `index.html` can paint the right colours before React boots. */
-export const PREFS_KEY = 'taskflow:prefs';
+export const PREFS_KEY = 'beeztodo:prefs';
+/** Previous prefs key kept as a read fallback. */
+export const LEGACY_PREFS_KEY = 'taskflow:prefs';
 
 function localStorageRef(): Storage | null {
   try {
@@ -19,7 +23,7 @@ export function loadState(now: Date = new Date()): AppState | null {
   const storage = localStorageRef();
   if (!storage) return null;
   try {
-    const raw = storage.getItem(STORAGE_KEY);
+    const raw = storage.getItem(STORAGE_KEY) ?? storage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) return null;
     return parseState(JSON.parse(raw), now);
   } catch {
@@ -45,6 +49,8 @@ export function clearState(): void {
   try {
     storage.removeItem(STORAGE_KEY);
     storage.removeItem(PREFS_KEY);
+    storage.removeItem(LEGACY_STORAGE_KEY);
+    storage.removeItem(LEGACY_PREFS_KEY);
   } catch {
     // ignore
   }
@@ -81,7 +87,7 @@ export function downloadBackup(state: AppState, fileName: string): void {
 export function resolveInitialTheme(): ThemeName {
   const storage = localStorageRef();
   if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-    const stored = storage?.getItem(PREFS_KEY);
+    const stored = storage?.getItem(PREFS_KEY) ?? storage?.getItem(LEGACY_PREFS_KEY);
     if (stored) {
       try {
         const parsed: unknown = JSON.parse(stored);

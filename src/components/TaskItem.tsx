@@ -1,6 +1,7 @@
 import type { DragEvent } from 'react';
 import type { Task } from '../types';
 import { describeDueDate } from '../lib/date';
+import { IconCalendar, IconEdit, IconGrip, IconNote, IconPlay, IconTarget, IconTrash } from './icons';
 import { PriorityBadge } from './PriorityBadge';
 
 interface TaskItemProps {
@@ -64,7 +65,7 @@ export function TaskItem({
     >
       {canDrag ? (
         <span className="task__handle" aria-hidden="true" title="Drag to reorder">
-          ⠿
+          <IconGrip width={16} height={16} />
         </span>
       ) : null}
 
@@ -89,8 +90,7 @@ export function TaskItem({
 
           {task.dueDate ? (
             <span className={`badge badge--due badge--due-${due.tone}`}>
-              {due.tone !== 'later' ? '' : '📅 '}
-              {due.label}
+              <IconCalendar width={13} height={13} /> {due.label}
             </span>
           ) : null}
 
@@ -108,13 +108,13 @@ export function TaskItem({
 
           {task.focusSessions > 0 ? (
             <span className="badge badge--muted" title={`${task.focusSessions} focus session(s) logged`}>
-              🎯 {task.focusSessions}
+              <IconTarget width={13} height={13} /> {task.focusSessions}
             </span>
           ) : null}
 
           {noteCount > 0 ? (
             <span className="badge badge--muted" title={`${noteCount} linked note(s)`}>
-              📝 {noteCount}
+              <IconNote width={13} height={13} /> {noteCount}
             </span>
           ) : null}
         </div>
@@ -122,20 +122,21 @@ export function TaskItem({
 
       <div className="task__actions">
         {!task.done ? (
-          <button type="button" className="icon-button" onClick={onFocus} title="Focus on this task">
-            ▶
+          <button type="button" className="icon-button" onClick={onFocus} title="Focus on this task" aria-label={`Focus on ${task.title}`}>
+            <IconPlay width={17} height={17} />
           </button>
         ) : null}
-        <button type="button" className="icon-button" onClick={onEdit} title="Edit task">
-          ✏️
+        <button type="button" className="icon-button" onClick={onEdit} title="Edit task" aria-label={`Edit ${task.title}`}>
+          <IconEdit width={17} height={17} />
         </button>
         <button
           type="button"
           className="icon-button icon-button--danger"
           onClick={onDelete}
           title="Delete task"
+          aria-label={`Delete ${task.title}`}
         >
-          🗑
+          <IconTrash width={17} height={17} />
         </button>
       </div>
     </li>

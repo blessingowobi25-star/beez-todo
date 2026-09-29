@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Note, NoteColor, Task } from '../types';
 import { formatRelativeTime } from '../lib/date';
 import { NOTE_COLORS, notePreview, sortNotes } from '../lib/noteUtils';
+import { IconEdit, IconNote, IconPin, IconPlus, IconTrash } from './icons';
 import { Modal } from './Modal';
 
 interface NotesPanelProps {
@@ -67,13 +68,13 @@ export function NotesPanel({ notes, tasks, onAdd, onUpdate, onDelete }: NotesPan
   }
 
   return (
-    <section className="notes card" aria-label="Notes">
+    <section className="notes card notes--pink" aria-label="Notes">
       <header className="notes__header">
         <h2 className="card__title">
-          Notes <span className="count-pill">{notes.length}</span>
+          <IconNote width={20} height={20} /> Notes <span className="count-pill">{notes.length}</span>
         </h2>
         <button type="button" className="button button--primary" onClick={() => setDraft({ ...EMPTY_DRAFT })}>
-          New note
+          <IconPlus width={16} height={16} /> New note
         </button>
       </header>
 
@@ -107,7 +108,7 @@ export function NotesPanel({ notes, tasks, onAdd, onUpdate, onDelete }: NotesPan
                     aria-label={note.pinned ? `Unpin ${note.title}` : `Pin ${note.title}`}
                     title={note.pinned ? 'Unpin note' : 'Pin note'}
                   >
-                    {note.pinned ? '★' : '☆'}
+                    <IconPin width={16} height={16} />
                   </button>
                 </div>
 
@@ -133,14 +134,14 @@ export function NotesPanel({ notes, tasks, onAdd, onUpdate, onDelete }: NotesPan
                       })
                     }
                   >
-                    Edit
+                    <IconEdit width={15} height={15} /> Edit
                   </button>
                   <button
                     type="button"
                     className="button button--ghost button--danger-text"
                     onClick={() => onDelete(note.id)}
                   >
-                    Delete
+                    <IconTrash width={15} height={15} /> Delete
                   </button>
                 </div>
               </li>
@@ -202,7 +203,7 @@ export function NotesPanel({ notes, tasks, onAdd, onUpdate, onDelete }: NotesPan
                 <option value="">No task</option>
                 {tasks.map((task) => (
                   <option key={task.id} value={task.id}>
-                    {task.done ? '✓ ' : ''}
+                    {task.done ? '[done] ' : ''}
                     {task.title}
                   </option>
                 ))}

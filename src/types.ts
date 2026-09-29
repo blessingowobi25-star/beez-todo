@@ -1,5 +1,5 @@
 /**
- * Domain types for TaskFlow.
+ * Domain types for BeezTodo.
  * These are the single source of truth for the shape of persisted data.
  */
 

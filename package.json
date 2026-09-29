@@ -1,14 +1,16 @@
 {
-  "name": "taskflow-todo-app",
+  "name": "beeztodo-app",
   "private": true,
   "version": "1.0.0",
-  "description": "TaskFlow - a To-Do list app with notes, focus timer and stats. Built with React + TypeScript + Vite.",
+  "description": "BeezTodo - a To-Do list app with notes, focus timer and stats. Built with React + TypeScript + Vite.",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --port 4173",
-    "test": "vitest run",
+    "test": "vitest run --testTimeout=20000 --hookTimeout=20000",
+    "test:app": "vitest run src/tests/App.test.tsx",
+    "test:app:verbose": "vitest run src/tests/App.test.tsx --reporter=verbose --testTimeout=8000 --hookTimeout=8000",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },

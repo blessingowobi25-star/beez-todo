@@ -1,6 +1,7 @@
 import type { RefObject } from 'react';
 import type { Priority, SortMode, TaskFilter, TaskStatusFilter } from '../types';
 import { PRIORITY_LABELS, PRIORITY_VALUES } from '../lib/taskUtils';
+import { IconSearch } from './icons';
 
 interface FilterBarProps {
   filter: TaskFilter;
@@ -49,7 +50,7 @@ export function FilterBar({
     <section className="filter-bar" aria-label="Search and filter tasks">
       <div className="filter-bar__search">
         <span className="filter-bar__search-icon" aria-hidden="true">
-          🔍
+          <IconSearch width={17} height={17} />
         </span>
         <input
           ref={searchRef}

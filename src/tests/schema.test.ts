@@ -48,7 +48,7 @@ describe('parseTask', () => {
 
 describe('parseState', () => {
   it('throws a readable error for non-object payloads', () => {
-    expect(() => parseState('nope', NOW)).toThrow('not a TaskFlow object');
+    expect(() => parseState('nope', NOW)).toThrow('not a BeezTodo object');
     expect(() => parseState({ hello: 'world' }, NOW)).toThrow('does not contain');
   });
 
@@ -100,6 +100,6 @@ describe('backup round trip', () => {
 
   it('reports invalid files clearly', () => {
     expect(() => importState('{ not json', NOW)).toThrow('not valid JSON');
-    expect(() => importState('"a string"', NOW)).toThrow('not a TaskFlow object');
+    expect(() => importState('"a string"', NOW)).toThrow('not a BeezTodo object');
   });
 });

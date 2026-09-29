@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { BottomNav } from './components/BottomNav';
+import { DashboardHero, pickNextTask } from './components/DashboardHero';
 import { FilterBar } from './components/FilterBar';
 import { FocusTimer } from './components/FocusTimer';
 import { Header } from './components/Header';
@@ -8,9 +10,12 @@ import { TaskComposer } from './components/TaskComposer';
 import { TaskEditor } from './components/TaskEditor';
 import { TaskList } from './components/TaskList';
 import { Toast } from './components/Toast';
+import { WeekStrip } from './components/WeekStrip';
 import { useAppState } from './hooks/useAppState';
 import { isDueToday, isOverdue } from './lib/date';
 import type { TaskStatusFilter } from './types';
+
+export type MobileSection = 'home' | 'calendar' | 'focus' | 'notes';
 
 export default function App() {
   const store = useAppState();
@@ -20,6 +25,8 @@ export default function App() {
   const composerRef = useRef<HTMLInputElement>(null);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
+  const [section, setSection] = useState<MobileSection>('home');
+  const [calendarDate, setCalendarDate] = useState<string | null>(null);
 
   const editingTask = state.tasks.find((task) => task.id === editingTaskId) ?? null;
   const editingTaskNotes = editingTask
@@ -38,6 +45,23 @@ export default function App() {
   );
 
   const { toggleTheme } = store;
+  const nextTask = useMemo(() => pickNextTask(state.tasks), [state.tasks]);
+  const dayCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const task of state.tasks) {
+      if (!task.dueDate || task.done) continue;
+      map.set(task.dueDate, (map.get(task.dueDate) ?? 0) + 1);
+    }
+    return map;
+  }, [state.tasks]);
+  const todayLabel = useMemo(() => {
+    const parsed = new Date(`${today}T12:00:00`);
+    return parsed.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  }, [today]);
+  const visibleTasks = useMemo(() => {
+    if (!calendarDate) return store.visibleTasks;
+    return store.visibleTasks.filter((task) => task.dueDate === calendarDate);
+  }, [store.visibleTasks, calendarDate]);
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
@@ -77,8 +101,36 @@ export default function App() {
         onLoadSample={store.loadSampleData}
       />
 
+      <DashboardHero
+        stats={stats}
+        nextTask={nextTask}
+        greetingName="there"
+        todayLabel={todayLabel}
+        onFocusTask={(id) => {
+          setFocusTaskId(id);
+          setSection('focus');
+        }}
+        onAddTask={() => {
+          setSection('home');
+          composerRef.current?.focus();
+        }}
+      />
+
+      <div className="app__mobile-pane" data-active={section === 'calendar'}>
+        <WeekStrip
+          today={today}
+          selectedDate={calendarDate ?? today}
+          counts={dayCounts}
+          onSelectDate={(date) => {
+            setCalendarDate(date);
+            setSection('calendar');
+          }}
+          onShowAll={() => setCalendarDate(null)}
+        />
+      </div>
+
       <main className="app__main">
-        <div className="app__column app__column--tasks">
+        <div className="app__column app__column--tasks" data-active={section === 'home' || section === 'calendar'}>
           <StatsBar
             stats={stats}
             onShowAll={() => store.setFilter({ status: 'all' })}
@@ -99,8 +151,17 @@ export default function App() {
             onReset={store.resetFilter}
           />
 
+          {calendarDate ? (
+            <p className="muted calendar-filter">
+              Showing tasks due {calendarDate}.
+              <button type="button" className="button button--ghost" onClick={() => setCalendarDate(null)}>
+                Clear date
+              </button>
+            </p>
+          ) : null}
+
           <TaskList
-            tasks={store.visibleTasks}
+            tasks={visibleTasks}
             notes={state.notes}
             today={today}
             sort={state.sort}
@@ -109,7 +170,10 @@ export default function App() {
             onToggle={store.toggleTask}
             onEdit={(task) => setEditingTaskId(task.id)}
             onDelete={store.deleteTask}
-            onFocusTask={(id) => setFocusTaskId(id)}
+            onFocusTask={(id) => {
+              setFocusTaskId(id);
+              setSection('focus');
+            }}
             onReorder={store.reorderTask}
             onTagClick={(tag) => store.setFilter({ tag })}
             onClearCompleted={store.clearCompleted}
@@ -119,26 +183,32 @@ export default function App() {
         </div>
 
         <aside className="app__column app__column--side">
-          <FocusTimer
-            tasks={state.tasks}
-            selectedTaskId={focusTaskId}
-            today={today}
-            onSelectTask={setFocusTaskId}
-            onSessionComplete={(taskId) => {
-              store.logFocusSession(taskId);
-              setFocusTaskId(taskId);
-            }}
-          />
+          <div className="app__mobile-pane" data-active={section === 'focus'}>
+            <FocusTimer
+              tasks={state.tasks}
+              selectedTaskId={focusTaskId}
+              today={today}
+              onSelectTask={setFocusTaskId}
+              onSessionComplete={(taskId) => {
+                store.logFocusSession(taskId);
+                setFocusTaskId(taskId);
+              }}
+            />
+          </div>
 
-          <NotesPanel
-            notes={state.notes}
-            tasks={state.tasks}
-            onAdd={store.addNote}
-            onUpdate={store.updateNote}
-            onDelete={store.deleteNote}
-          />
+          <div className="app__mobile-pane" data-active={section === 'notes'}>
+            <NotesPanel
+              notes={state.notes}
+              tasks={state.tasks}
+              onAdd={store.addNote}
+              onUpdate={store.updateNote}
+              onDelete={store.deleteNote}
+            />
+          </div>
         </aside>
       </main>
+
+      <BottomNav active={section} onChange={setSection} />
 
       <footer className="app-footer">
         <p>

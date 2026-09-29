@@ -1,4 +1,5 @@
 import type { TaskStats } from '../types';
+import { IconCalendar, IconClock, IconTarget } from './icons';
 
 interface StatsBarProps {
   stats: TaskStats;
@@ -24,24 +25,24 @@ export function StatsBar({ stats, onShowOverdue, onShowToday, onShowAll }: Stats
       </div>
 
       <div className="stats__cards">
-        <button type="button" className="stat-card" onClick={onShowAll}>
+        <button type="button" className="stat-card stat-card--lilac" onClick={onShowAll}>
           <span className="stat-card__value">{stats.active}</span>
           <span className="stat-card__label">Active</span>
         </button>
-        <button type="button" className="stat-card" onClick={onShowToday}>
-          <span className="stat-card__value">{stats.dueToday}</span>
+        <button type="button" className="stat-card stat-card--sky" onClick={onShowToday}>
+          <span className="stat-card__value"><IconCalendar width={16} height={16} /> {stats.dueToday}</span>
           <span className="stat-card__label">Due today</span>
         </button>
         <button
           type="button"
-          className={`stat-card${stats.overdue > 0 ? ' stat-card--alert' : ''}`}
+          className={`stat-card stat-card--peach${stats.overdue > 0 ? ' stat-card--alert' : ''}`}
           onClick={onShowOverdue}
         >
-          <span className="stat-card__value">{stats.overdue}</span>
+          <span className="stat-card__value"><IconClock width={16} height={16} /> {stats.overdue}</span>
           <span className="stat-card__label">Overdue</span>
         </button>
-        <div className="stat-card stat-card--static">
-          <span className="stat-card__value">{stats.focusSessions}</span>
+        <div className="stat-card stat-card--mint stat-card--static">
+          <span className="stat-card__value"><IconTarget width={16} height={16} /> {stats.focusSessions}</span>
           <span className="stat-card__label">Focus sessions</span>
         </div>
       </div>

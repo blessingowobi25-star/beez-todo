@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { IconClose } from './icons';
 
 interface ModalProps {
   title: string;
@@ -45,7 +46,7 @@ export function Modal({ title, onClose, children, footer }: ModalProps) {
         <header className="modal__header">
           <h2 className="modal__title">{title}</h2>
           <button type="button" className="icon-button" onClick={onClose} aria-label="Close dialog">
-            ✕
+            <IconClose width={16} height={16} />
           </button>
         </header>
         <div className="modal__body">{children}</div>

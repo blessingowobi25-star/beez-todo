@@ -94,10 +94,14 @@ export function formatRelativeTime(iso: string, now: Date = new Date()): string 
   return `${Math.round(months / 12)}y ago`;
 }
 
-/** Formats a whole number of seconds as `MM:SS` for the focus timer. */
+/** Formats a whole number of seconds as `H:MM:SS` / `MM:SS` for the focus timer. */
 export function formatClock(totalSeconds: number): string {
   const safe = Math.max(0, Math.floor(totalSeconds));
-  const minutes = Math.floor(safe / 60);
+  const hours = Math.floor(safe / 3600);
+  const minutes = Math.floor((safe % 3600) / 60);
   const seconds = safe % 60;
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }

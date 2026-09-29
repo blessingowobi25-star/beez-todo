@@ -8,8 +8,9 @@ a step, add it to "Lessons learned" at the bottom — that is how this file impr
 ## 1. Project overview
 
 - **Product:** TaskFlow — a browser-only to-do app with notes, due dates, priorities,
-  tags, drag-and-drop ordering, a Pomodoro focus timer, stats, JSON backup/restore and a
-  light/dark theme.
+  tags, drag-and-drop ordering, a customisable focus timer, stats, JSON backup/restore and a
+  light/dark theme. The UI follows a soft "planner" reference: greeting hero, week strip,
+  pastel cards and a mobile bottom nav (`src/planner.css`).
 - **Stack:** React 19 + TypeScript (strict) + Vite, hand-written CSS (no CSS framework),
   Vitest + Testing Library for tests.
 - **Persistence:** `localStorage` only. There is **no backend and no network calls**.
@@ -187,8 +188,42 @@ These are real problems hit while building this app. They are the highest-value 
 9. **PowerShell `Start-Process -ArgumentList` does not quote paths.** Pass one pre-quoted
    string (`'-NoProfile -File "C:\path with spaces\script.ps1"'`) or the script silently
    fails to launch.
-
-## 13. Maintaining this file
+10. **Native date/time inputs need an explicit `color-scheme`.** The browser renders
+    `input[type=date]` segments (day/month/year) using the *OS* scheme, so a light-themed app
+    viewed on a dark-mode machine showed a barely visible picker and a white calendar glyph.
+    Fix lives in `index.css`: `color-scheme: light` on the input, overridden to `dark` under
+    `html[data-theme='dark']`, plus `filter: invert(1)` on `::-webkit-calendar-picker-indicator`.
+    Keep that block when adding new form controls.
+11. **Emoji are not icons.** Buttons now use the inline SVG set in `components/icons.tsx`
+    (`stroke="currentColor"`, `aria-hidden`), so they inherit the text colour and stay legible in
+    both themes. `Button`/`IconButton` CSS reserves `flex: none` for `svg` — keep it, or the
+    glyphs stretch inside flex rows. Never hard-code an emoji in a control again.
+12. **Theme tokens live in `:root`, but a per-theme value can override them.** `--card-pink`
+    etc. are defined once in `:root` because the pastel card colours are theme-independent.
+    Anything that genuinely differs per theme stays in the `html[data-theme='…']` blocks.
+13. **Long-running commands must be detached.** The terminal kills foreground commands after
+    ~30 s, so `npm test` / `npm run build` are launched with `Start-Process … verify.ps1 -Only <task>`
+    and the result is read from `.tools/verify-run.log`. Definition of done is unchanged:
+    `typecheck` → `test` → `build` all exit 0.
+14. **A richer UI can make integration tests time out, not fail.** After adding the hero, week
+    strip and bottom nav, two `App.test.tsx` cases hit Vitest's 5 s default purely on volume
+    (`userEvent` types character by character through a much bigger DOM). If a test times out but
+    the assertion never ran, raise `testTimeout` in `vite.config.ts` (now 20 s) instead of
+    rewriting the test. Only change the test if an actual assertion failed.
+15. **Delete orphan CSS files — and re-check imports after deleting one.** An earlier
+    `src/theme-overrides.css` was superseded by `planner.css`; it was removed, but a stale
+    `import './theme-overrides.css'` in `main.tsx` briefly broke the build with
+    `UNRESOLVED_IMPORT` while typecheck stayed green. When a file is unimported it is dead code
+    (section 4), and after deleting any module, grep for its name in the import graph.
+16. **Run the verification detached, through `.tools/bg.ps1`.** Long tasks must survive the
+    30 s terminal limit. `.tools/bg.ps1 -Script all -Log full.log` starts `verify.ps1` via
+    `Start-Process` (properly quoted, per lesson 9) and writes the result to `.tools/<log>`.
+    Poll the log with `read_files` — do **not** chain a `Start-Sleep` into the same terminal,
+    because the next foreground command kills the run you are waiting for.
+17. **Query conditionally-rendered fields with `findBy*`.** The focus timer's custom
+    hours/minutes inputs only exist after the "Custom" chip is pressed, so `getByLabelText`
+    raced the re-render and failed. Use `findByLabelText`/`findByText` for anything behind a
+    toggle, per section 6 of the testing rules.
 
 Add to this document whenever an agent:
 - discovers a repo-specific gotcha (put it in "Lessons learned" with the symptom and the fix),

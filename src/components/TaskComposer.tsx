@@ -3,6 +3,7 @@ import type { FormEvent, RefObject } from 'react';
 import type { Priority } from '../types';
 import { addDaysISO, todayISO } from '../lib/date';
 import { PRIORITY_LABELS, PRIORITY_VALUES, parseTags, type TaskDraft } from '../lib/taskUtils';
+import { IconPlus } from './icons';
 
 interface TaskComposerProps {
   inputRef: RefObject<HTMLInputElement | null>;
@@ -73,7 +74,7 @@ export function TaskComposer({ inputRef, onAdd }: TaskComposerProps) {
         </select>
 
         <button type="submit" className="button button--primary" disabled={!title.trim()}>
-          Add task
+          <IconPlus width={16} height={16} /> Add task
         </button>
       </div>
 

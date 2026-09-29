@@ -66,6 +66,13 @@ describe('date helpers', () => {
     expect(formatClock(-5)).toBe('00:00');
   });
 
+  it('adds an hour segment once the clock passes 60 minutes', () => {
+    expect(formatClock(3600)).toBe('1:00:00');
+    expect(formatClock(3661)).toBe('1:01:01');
+    expect(formatClock(7325)).toBe('2:02:05');
+    expect(formatClock(3599)).toBe('59:59');
+  });
+
   it('formats relative timestamps', () => {
     const now = new Date('2026-09-29T12:00:00.000Z');
     expect(formatRelativeTime('2026-09-29T11:59:50.000Z', now)).toBe('just now');

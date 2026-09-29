@@ -18,5 +18,8 @@ export default defineConfig({
     css: false,
     setupFiles: ['./src/tests/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
+    // The full app shell renders a lot of markup, so userEvent interactions in
+    // App.test.tsx need more headroom than Vitest's 5s default.
+    testTimeout: 20000,
   },
 });

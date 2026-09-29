@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Note, Priority, Task } from '../types';
 import { notePreview } from '../lib/noteUtils';
 import { PRIORITY_LABELS, PRIORITY_VALUES, parseTags, type TaskDraft } from '../lib/taskUtils';
+import { IconTarget, IconTrash } from './icons';
 import { Modal } from './Modal';
 
 interface TaskEditorProps {
@@ -134,7 +135,7 @@ export function TaskEditor({
 
       <section className="editor-notes">
         <h3 className="subsection-title">
-          Notes {task.focusSessions > 0 ? <span className="badge badge--muted">🎯 {task.focusSessions} sessions</span> : null}
+          Notes {task.focusSessions > 0 ? <span className="badge badge--muted"><IconTarget width={13} height={13} /> {task.focusSessions} sessions</span> : null}
         </h3>
         <p className="muted">Notes attached to this task. They also appear in the Notes panel.</p>
 
@@ -152,7 +153,7 @@ export function TaskEditor({
                   onClick={() => onDeleteNote(note.id)}
                   aria-label={`Delete note ${note.title}`}
                 >
-                  🗑
+                  <IconTrash width={16} height={16} />
                 </button>
               </li>
             ))}

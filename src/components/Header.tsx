@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import type { AppState, ThemeName } from '../types';
 import { downloadBackup, importState } from '../lib/persistence';
+import { IconCheck, IconDownload, IconMoon, IconSparkle, IconSun, IconTrash, IconUpload } from './icons';
 
 interface HeaderProps {
   theme: ThemeName;
@@ -26,7 +27,7 @@ export function Header({
   const [error, setError] = useState<string | null>(null);
 
   function handleExport() {
-    downloadBackup(state, `taskflow-backup-${new Date().toISOString().slice(0, 10)}.json`);
+    downloadBackup(state, `beeztodo-backup-${new Date().toISOString().slice(0, 10)}.json`);
     setMenuOpen(false);
   }
 
@@ -56,7 +57,7 @@ export function Header({
     <header className="app-header">
       <div className="app-header__brand">
         <span className="app-header__logo" aria-hidden="true">
-          ✓
+          <IconCheck width={24} height={24} />
         </span>
         <div>
           <h1 className="app-header__title">TaskFlow</h1>
@@ -72,7 +73,8 @@ export function Header({
           aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
           title="Toggle theme (press D)"
         >
-          {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+          {theme === 'dark' ? <IconSun width={17} height={17} /> : <IconMoon width={17} height={17} />}
+          {theme === 'dark' ? ' Light' : ' Dark'}
         </button>
 
         <div className="menu">
@@ -97,7 +99,7 @@ export function Header({
               />
               <div className="menu__panel" role="menu">
                 <button type="button" className="menu__item" role="menuitem" onClick={handleExport}>
-                  ⬇️ Export backup (JSON)
+                  <IconDownload width={16} height={16} /> Export backup (JSON)
                 </button>
                 <button
                   type="button"
@@ -105,7 +107,7 @@ export function Header({
                   role="menuitem"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  ⬆️ Import backup
+                  <IconUpload width={16} height={16} /> Import backup
                 </button>
                 <button
                   type="button"
@@ -116,7 +118,7 @@ export function Header({
                     setMenuOpen(false);
                   }}
                 >
-                  ✨ Load sample data
+                  <IconSparkle width={16} height={16} /> Load sample data
                 </button>
                 <button
                   type="button"
@@ -124,7 +126,7 @@ export function Header({
                   role="menuitem"
                   onClick={handleReset}
                 >
-                  🗑️ Reset everything
+                  <IconTrash width={16} height={16} /> Reset everything
                 </button>
                 {error ? <p className="menu__error">{error}</p> : null}
               </div>

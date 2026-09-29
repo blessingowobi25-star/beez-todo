@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const FOCUS_PRESETS = [15, 25, 50] as const;
 export const DEFAULT_FOCUS_MINUTES = 25;
+export const MIN_FOCUS_MINUTES = 1;
+export const MAX_FOCUS_MINUTES = 480;
 
 export interface FocusTimerApi {
   minutes: number;
@@ -14,6 +16,13 @@ export interface FocusTimerApi {
   pause: () => void;
   reset: () => void;
   skip: () => void;
+}
+
+export function clampFocusMinutes(next: number): number {
+  // Infinity is a valid "as long as possible" request, so clamp it to the max
+  // instead of discarding the user's input; only NaN falls back to the default.
+  if (Number.isNaN(next)) return DEFAULT_FOCUS_MINUTES;
+  return Math.min(MAX_FOCUS_MINUTES, Math.max(MIN_FOCUS_MINUTES, Math.round(next)));
 }
 
 /**
@@ -48,7 +57,7 @@ export function useFocusTimer(onSessionComplete: () => void): FocusTimerApi {
   }, [remaining, running]);
 
   const setMinutes = useCallback((next: number) => {
-    const safe = Math.max(1, Math.round(next));
+    const safe = clampFocusMinutes(next);
     setMinutesState(safe);
     setRunning(false);
     setRemaining(safe * 60);

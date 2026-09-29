@@ -1,34 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 /* =========================================================================
-   TaskFlow design system
+   TaskFlow design system — soft planner cards inspired by the mobile sample
    Sections: 1 tokens · 2 base · 3 controls · 4 surfaces · 5 layout
              6 tasks · 7 notes · 8 focus timer · 9 modal/toast · 10 responsive
    ========================================================================= */
 
 /* ------------------------------------------------------------------ tokens */
 :root {
-  --font-sans: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --font-sans: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 26px;
+  --radius-pill: 999px;
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
   --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.1);
   --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.24);
   --transition: 160ms ease;
+  --card-pink: #f9a8f1;
+  --card-peach: #fdba74;
+  --card-sky: #7dd3fc;
+  --card-lilac: #a5b4fc;
+  --card-mint: #6ee7b7;
+  --ink-on-accent: #141126;
+}
+
+html {
+  color-scheme: light;
 }
 
 html[data-theme='light'] {
-  --bg: #f5f6fb;
-  --bg-gradient: radial-gradient(1200px 600px at 10% -10%, #e0e7ff 0%, transparent 55%),
-    radial-gradient(900px 500px at 110% 0%, #cffafe 0%, transparent 50%), #f5f6fb;
+  color-scheme: light;
+  --bg: #dedbf5;
+  --bg-gradient: radial-gradient(1200px 600px at 10% -10%, #e6e2ff 0%, transparent 55%),
+    radial-gradient(900px 500px at 110% 0%, #fdf4ff 0%, transparent 50%), #dedbf5;
   --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --surface-3: #eef2ff;
-  --text: #101828;
-  --text-muted: #667085;
-  --border: #e4e7ec;
-  --border-strong: #cdd3dd;
-  --accent: #4f46e5;
-  --accent-soft: #eef2ff;
+  --surface-2: #f4f3fc;
+  --surface-3: #ece9fb;
+  --text: #141126;
+  --text-muted: #5f5b7a;
+  --border: #e3e0f2;
+  --border-strong: #c9c4e6;
+  --accent: #6d5ef0;
+  --accent-soft: #ece9ff;
   --accent-contrast: #ffffff;
   --danger: #d92d20;
   --danger-soft: #fef3f2;
@@ -37,31 +51,34 @@ html[data-theme='light'] {
   --success: #027a48;
   --success-soft: #ecfdf3;
   --note-amber: #fef3c7;
-  --focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.28);
+  --focus-ring: 0 0 0 3px rgba(109, 94, 240, 0.28);
+  --nav-bg: #131022;
 }
 
 html[data-theme='dark'] {
-  --bg: #0b1020;
-  --bg-gradient: radial-gradient(1100px 560px at 5% -10%, #1e1b4b 0%, transparent 55%),
-    radial-gradient(900px 520px at 110% 0%, #0e7490 0%, transparent 45%), #0b1020;
-  --surface: #131a2e;
-  --surface-2: #17203a;
-  --surface-3: #1d2742;
-  --text: #e8ecf7;
-  --text-muted: #9aa5bd;
-  --border: #253052;
-  --border-strong: #334066;
-  --accent: #8b93ff;
-  --accent-soft: #232a52;
-  --accent-contrast: #0b1020;
-  --danger: #ff8f85;
+  color-scheme: dark;
+  --bg: #0f0d22;
+  --bg-gradient: radial-gradient(1100px 560px at 5% -10%, #2a2560 0%, transparent 55%),
+    radial-gradient(900px 520px at 110% 0%, #123a4d 0%, transparent 45%), #0f0d22;
+  --surface: #1a1830;
+  --surface-2: #211e3b;
+  --surface-3: #2a2650;
+  --text: #f2f0ff;
+  --text-muted: #b8b3d6;
+  --border: #322d5c;
+  --border-strong: #4a4380;
+  --accent: #a99dff;
+  --accent-soft: #2b2658;
+  --accent-contrast: #141126;
+  --danger: #ff9a90;
   --danger-soft: #3a1d1c;
   --warning: #f7b955;
   --warning-soft: #3a2c14;
   --success: #6ee7a8;
   --success-soft: #123322;
   --note-amber: #3a2c14;
-  --focus-ring: 0 0 0 3px rgba(139, 147, 255, 0.35);
+  --focus-ring: 0 0 0 3px rgba(169, 157, 255, 0.35);
+  --nav-bg: #080716;
 }
 
 /* -------------------------------------------------------------------- base */
@@ -243,6 +260,37 @@ kbd {
 
 .input::placeholder {
   color: var(--text-muted);
+  opacity: 1;
+}
+
+/* Native date/time/number controls follow the OS colour scheme by default,
+ * which faded the day/month/year segments when the OS was dark but the app
+ * theme was light (and vice versa). Pin them to the active app theme. */
+input[type='date'].input,
+input[type='time'].input,
+input[type='datetime-local'].input,
+input[type='month'].input,
+input[type='week'].input,
+input[type='number'].input,
+select.input {
+  color-scheme: light;
+}
+
+html[data-theme='dark'] input[type='date'].input,
+html[data-theme='dark'] input[type='time'].input,
+html[data-theme='dark'] input[type='datetime-local'].input,
+html[data-theme='dark'] input[type='month'].input,
+html[data-theme='dark'] input[type='week'].input,
+html[data-theme='dark'] input[type='number'].input,
+html[data-theme='dark'] select.input {
+  color-scheme: dark;
+}
+
+html[data-theme='dark'] input[type='date'].input::-webkit-calendar-picker-indicator,
+html[data-theme='dark'] input[type='time'].input::-webkit-calendar-picker-indicator,
+html[data-theme='dark'] input[type='datetime-local'].input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
 }
 
 .input:focus {

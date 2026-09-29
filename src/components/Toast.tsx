@@ -1,3 +1,5 @@
+import { IconClose } from './icons';
+
 interface ToastProps {
   message: string;
   actionLabel: string;
@@ -14,7 +16,7 @@ export function Toast({ message, actionLabel, onAction, onDismiss }: ToastProps)
         {actionLabel}
       </button>
       <button type="button" className="icon-button" onClick={onDismiss} aria-label="Dismiss notification">
-        ✕
+        <IconClose width={15} height={15} />
       </button>
     </div>
   );
