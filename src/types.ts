@@ -1,5 +1,5 @@
 /**
- * Domain types for BeezTodo.
+ * Domain types for Beez.
  * These are the single source of truth for the shape of persisted data.
  */
 

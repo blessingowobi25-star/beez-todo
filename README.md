@@ -1,4 +1,4 @@
-# TaskFlow — To-do list, notes & focus timer
+# Beez — To-do list, notes & focus timer
 
 A small, fast to-do app built **almost entirely through AI-assisted coding** for the HNG
 "Build and Deploy a To-Do List App Using AI" task. No backend, no accounts: everything is
@@ -13,11 +13,14 @@ stored in the browser and works offline after the first load.
 
 The layout follows the supplied mobile planner mockup:
 
-- **Greeting hero** — "Good morning/afternoon/evening", today's date, live task count and a
-  purple gradient "Next task" card.
-- **Calendar week strip** — seven day cards with dots where tasks are due; picking a day
-  filters the list to that date.
-- **Pastel cards** — lilac / sky / peach / mint statistic tiles and sticky-style notes.
+- **Compact hero** — a one-line count of open tasks plus the next task worth doing. No greeting,
+  no duplicated date, no dead notification bell.
+- **Calendar week strip** — seven day cards; the current day is outlined and labelled "Today",
+  and days show a count of tasks due. Picking a day filters the list to that date.
+- **Empty by default** — a new visitor sees no tasks at all and a single "Welcome to Beez"
+  note. Demo tasks are only available behind the explicit **Data → Load sample data** action.
+- **Pastel cards** — lilac / sky / peach / mint statistic tiles and sticky-style notes. Tapping a
+  stat tile filters the list to that status.
 - **Bottom navigation on mobile** — Home, Calendar, Focus and Notes panes in a floating pill bar.
 - **Real SVG icons** everywhere (no emoji glyphs) in `src/components/icons.tsx`.
 

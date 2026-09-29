@@ -12,7 +12,8 @@ import { TaskList } from './components/TaskList';
 import { Toast } from './components/Toast';
 import { WeekStrip } from './components/WeekStrip';
 import { useAppState } from './hooks/useAppState';
-import { isDueToday, isOverdue } from './lib/date';
+import { formatLongDate, isDueToday, isOverdue } from './lib/date';
+import type { TaskDraft } from './lib/taskUtils';
 import type { TaskStatusFilter } from './types';
 
 export type MobileSection = 'home' | 'calendar' | 'focus' | 'notes';
@@ -54,14 +55,27 @@ export default function App() {
     }
     return map;
   }, [state.tasks]);
-  const todayLabel = useMemo(() => {
-    const parsed = new Date(`${today}T12:00:00`);
-    return parsed.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-  }, [today]);
   const visibleTasks = useMemo(() => {
     if (!calendarDate) return store.visibleTasks;
     return store.visibleTasks.filter((task) => task.dueDate === calendarDate);
   }, [store.visibleTasks, calendarDate]);
+  // Both the composer and the stat tiles change the filter, so a new task could
+  // land off-screen behind "Overdue" or a day the user had tapped earlier.
+  function addTask(draft: TaskDraft) {
+    store.addTask(draft);
+    store.resetFilter();
+    setCalendarDate(null);
+    setSection('home');
+  }
+
+  // Stat tiles are shortcuts into the list; they must also drop any day filter,
+  // otherwise tapping "Overdue" looks like it did nothing.
+  function showStatus(status: TaskStatusFilter) {
+    store.setFilter({ status });
+    setCalendarDate(null);
+    setSection('home');
+  }
+
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
@@ -104,8 +118,6 @@ export default function App() {
       <DashboardHero
         stats={stats}
         nextTask={nextTask}
-        greetingName="there"
-        todayLabel={todayLabel}
         onFocusTask={(id) => {
           setFocusTaskId(id);
           setSection('focus');
@@ -133,12 +145,12 @@ export default function App() {
         <div className="app__column app__column--tasks" data-active={section === 'home' || section === 'calendar'}>
           <StatsBar
             stats={stats}
-            onShowAll={() => store.setFilter({ status: 'all' })}
-            onShowToday={() => store.setFilter({ status: 'today' })}
-            onShowOverdue={() => store.setFilter({ status: 'overdue' })}
+            onShowAll={() => showStatus('all')}
+            onShowToday={() => showStatus('today')}
+            onShowOverdue={() => showStatus('overdue')}
           />
 
-          <TaskComposer inputRef={composerRef} onAdd={store.addTask} />
+          <TaskComposer inputRef={composerRef} onAdd={addTask} />
 
           <FilterBar
             filter={state.filter}
@@ -153,7 +165,7 @@ export default function App() {
 
           {calendarDate ? (
             <p className="muted calendar-filter">
-              Showing tasks due {calendarDate}.
+              Showing tasks due {formatLongDate(calendarDate)}.
               <button type="button" className="button button--ghost" onClick={() => setCalendarDate(null)}>
                 Clear date
               </button>
@@ -177,7 +189,6 @@ export default function App() {
             onReorder={store.reorderTask}
             onTagClick={(tag) => store.setFilter({ tag })}
             onClearCompleted={store.clearCompleted}
-            onAddSample={store.loadSampleData}
             onResetFilters={store.resetFilter}
           />
         </div>

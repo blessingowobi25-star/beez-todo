@@ -2,6 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import App from '../App';
+import { todayISO } from '../lib/date';
 
 /** Integration tests for the whole shell: composer, filters, notes and undo. */
 async function renderApp() {
@@ -10,27 +11,54 @@ async function renderApp() {
   return user;
 }
 
+/** Adds tasks through the real composer so tests never seed localStorage by hand. */
+async function addTask(user: ReturnType<typeof userEvent.setup>, title: string) {
+  await user.type(screen.getByLabelText('Task title'), title);
+  await user.click(screen.getByRole('button', { name: 'Add task' }));
+}
+
 describe('App', () => {
-  it('shows the seeded task list on first load', async () => {
+  it('starts empty for a new user but shows the welcome note', async () => {
     await renderApp();
-    expect(screen.getByRole('button', { name: 'Try BeezTodo: add your first task' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Welcome to BeezTodo/ })).toBeInTheDocument();
+
+    expect(screen.getByText('No tasks yet')).toBeInTheDocument();
+    expect(screen.queryByText('Deploy checklist')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Welcome to Beez' })).toBeInTheDocument();
+  });
+
+  it('brands itself as Beez with no feature-list subtitle', async () => {
+    await renderApp();
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Beez' })).toBeInTheDocument();
+    expect(screen.queryByText(/to-do list · notes · focus timer/i)).not.toBeInTheDocument();
   });
 
   it('adds a task from the composer and persists it', async () => {
     const user = await renderApp();
 
-    await user.type(screen.getByLabelText('Task title'), 'Write the submission form');
-    await user.click(screen.getByRole('button', { name: 'Add task' }));
+    await addTask(user, 'Write the submission form');
 
     expect(screen.getByRole('button', { name: 'Write the submission form' })).toBeInTheDocument();
+    expect(screen.queryByText('No tasks yet')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Task title')).toHaveValue('');
     expect(window.localStorage.getItem('beeztodo:state')).toContain('Write the submission form');
   });
 
+  // Regression: adding a task while a status tab was active left the new task
+  // filtered out of the list, so the app looked like it had swallowed it.
+  it('shows a new task even when a status filter was already active', async () => {
+    const user = await renderApp();
+
+    await user.click(screen.getByRole('tab', { name: /^Done/ }));
+    await addTask(user, 'Visible after filtering');
+
+    expect(screen.getByRole('button', { name: 'Visible after filtering' })).toBeInTheDocument();
+  });
+
   it('completes a task and reflects it in the stats', async () => {
     const user = await renderApp();
-    const title = 'Try BeezTodo: add your first task';
+    const title = 'Write the submission form';
+    await addTask(user, title);
 
     await user.click(screen.getByLabelText(`Mark "${title}" as complete`));
 
@@ -40,17 +68,35 @@ describe('App', () => {
 
   it('filters the list with the status tabs', async () => {
     const user = await renderApp();
+    await addTask(user, 'Still open');
+    await addTask(user, 'Already finished');
 
+    await user.click(screen.getByLabelText('Mark "Already finished" as complete'));
     await user.click(screen.getByRole('tab', { name: /^Done/ }));
 
-    expect(screen.getByRole('button', { name: 'Sketch the layout of the app' })).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Try BeezTodo: add your first task' }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Already finished' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Still open' })).not.toBeInTheDocument();
+  });
+
+  // Regression: a lingering day filter swallowed stat-tile taps, so "1 active"
+  // and "1 overdue" appeared to do nothing.
+  it('shows the matching tasks when a stat tile is tapped', async () => {
+    const user = await renderApp();
+    await addTask(user, 'Overdue item');
+
+    await user.click(screen.getByRole('button', { name: 'Edit Overdue item' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.type(within(dialog).getByLabelText('Due date'), '2020-01-01');
+    await user.click(within(dialog).getByRole('button', { name: 'Save changes' }));
+    await user.click(screen.getByRole('button', { name: 'Show 1 overdue tasks' }));
+
+    expect(screen.getByRole('button', { name: 'Overdue item' })).toBeInTheDocument();
   });
 
   it('searches tasks by text', async () => {
     const user = await renderApp();
+    await addTask(user, 'Run a 25 minute focus session');
+    await addTask(user, 'Capture an idea in the Notes panel');
 
     await user.type(screen.getByLabelText('Search tasks'), 'focus');
 
@@ -75,7 +121,8 @@ describe('App', () => {
 
   it('deletes a task and restores it with undo', async () => {
     const user = await renderApp();
-    const title = 'Try BeezTodo: add your first task';
+    const title = 'Write the submission form';
+    await addTask(user, title);
 
     await user.click(screen.getAllByTitle('Delete task')[0]);
 
@@ -117,10 +164,23 @@ describe('App', () => {
 
   it('filters the list to a day picked in the week strip', async () => {
     const user = await renderApp();
+    await addTask(user, 'Run a 25 minute focus session');
 
-    await user.click(screen.getByRole('button', { name: /^Mon/ }));
+    await user.click(screen.getByRole('button', { name: /, today/ }));
 
     expect(screen.getByText(/Showing tasks due/)).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Run a 25 minute focus session' })).not.toBeInTheDocument();
+  });
+
+  it('marks today in the week strip and captions dates readably', async () => {
+    const user = await renderApp();
+
+    // The week strip labels the current day so it is identifiable at a glance.
+    expect(await screen.findByRole('button', { name: /, today/ })).toBeInTheDocument();
+    // The composer shows "No date"/"Today" rather than bare dd/mm/yyyy numbers.
+    expect(screen.getByText('No date')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Today' }));
+    // The caption flips to "Today" and the raw picker value is set.
+    expect(screen.getAllByText('Today').length).toBeGreaterThan(0);
+    expect(screen.getByLabelText('Due date')).toHaveValue(todayISO());
   });
 });

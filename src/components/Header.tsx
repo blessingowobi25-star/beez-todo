@@ -57,12 +57,9 @@ export function Header({
     <header className="app-header">
       <div className="app-header__brand">
         <span className="app-header__logo" aria-hidden="true">
-          <IconCheck width={24} height={24} />
+          <IconCheck width={22} height={22} />
         </span>
-        <div>
-          <h1 className="app-header__title">TaskFlow</h1>
-          <p className="app-header__subtitle">To-do list · notes · focus timer</p>
-        </div>
+        <h1 className="app-header__title">Beez</h1>
       </div>
 
       <div className="app-header__actions">

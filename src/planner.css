@@ -77,57 +77,58 @@
   padding: 0.35rem 0.7rem;
 }
 
-.hero__bell {
-  position: relative;
-}
-
-.hero__bell-dot {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ef4444;
-  border: 2px solid var(--surface);
-}
-
-.hero__headline {
-  font-size: clamp(1.7rem, 4vw, 2.4rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.08;
-}
-
-.hero__actions {
+.hero__summary {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
 }
 
-.hero__add {
+.hero__alert {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fee2e2;
   border-radius: 999px;
-  padding: 0.55rem 1.1rem;
+  padding: 0.15rem 0.6rem;
 }
 
-.hero__hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
+html[data-theme='dark'] .hero__alert {
+  color: #fecaca;
+  background: #7f1d1d;
+}
+
+.hero__headline {
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
 }
 
 .hero-card {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 22px;
+  border-radius: 20px;
   padding: 1.1rem 1.2rem;
-  background: linear-gradient(120deg, #7c6cf6 0%, #8b7cf6 45%, #a78bfa 100%);
+  background: linear-gradient(120deg, #6d5ef0 0%, #8b7cf6 100%);
   color: #fff;
   overflow: hidden;
   position: relative;
+}
+
+/* The empty variant stays quiet so the "add a task" prompt reads as an
+   instruction rather than another bright card competing for attention. */
+.hero-card--empty {
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+  color: var(--text);
+}
+
+.hero-card--empty .hero-card__title {
+  font-size: 1.1rem;
+}
+
+.hero-card--empty .hero-card__cta {
+  background: #6d5ef0;
+  color: #fff;
 }
 
 .hero-card__eyebrow {
@@ -251,16 +252,53 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-.week__dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: transparent;
-  margin-top: 0.25rem;
+/* The today marker is a ring + label so the current day is unmistakable even
+   when it is not the selected day. */
+.week__day--today {
+  border-color: #6d5ef0;
 }
 
-.week__dot--busy {
+.week__day--today .week__day-number {
+  color: #6d5ef0;
+}
+
+.week__day--today.week__day--active {
+  background: #6d5ef0;
+  color: #fff;
+}
+
+.week__day--today.week__day--active .week__day-number {
+  color: #fff;
+}
+
+.week__today-mark {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6d5ef0;
+}
+
+.week__day--active .week__today-mark {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.week__badge {
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
   background: currentColor;
+  color: var(--surface);
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 17px;
+  text-align: center;
+}
+
+.week__day--active .week__badge {
+  color: #6d5ef0;
+  background: #fff;
 }
 
 .week__all {

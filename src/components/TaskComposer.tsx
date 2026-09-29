@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent, RefObject } from 'react';
 import type { Priority } from '../types';
-import { addDaysISO, todayISO } from '../lib/date';
+import { addDaysISO, formatLongDate, todayISO } from '../lib/date';
 import { PRIORITY_LABELS, PRIORITY_VALUES, parseTags, type TaskDraft } from '../lib/taskUtils';
 import { IconPlus } from './icons';
 
@@ -40,6 +40,14 @@ export function TaskComposer({ inputRef, onAdd }: TaskComposerProps) {
     inputRef.current?.focus();
   }
 
+  // A plain readable label beats the native dd/mm/yyyy segments, which looked
+  // like arbitrary numbers to users and re-format per browser locale.
+  const dueLabel = !dueDate
+    ? 'No date'
+    : dueDate === todayISO()
+      ? 'Today'
+      : formatLongDate(dueDate);
+
   return (
     <form className="composer card" onSubmit={handleSubmit} aria-label="Add a task">
       <div className="composer__row">
@@ -52,13 +60,16 @@ export function TaskComposer({ inputRef, onAdd }: TaskComposerProps) {
           onChange={(event) => setTitle(event.target.value)}
         />
 
-        <input
-          type="date"
-          className="input composer__date"
-          aria-label="Due date"
-          value={dueDate}
-          onChange={(event) => setDueDate(event.target.value)}
-        />
+        <label className="composer__date-field">
+          <span className="composer__date-label">{dueLabel}</span>
+          <input
+            type="date"
+            className="input composer__date"
+            aria-label="Due date"
+            value={dueDate}
+            onChange={(event) => setDueDate(event.target.value)}
+          />
+        </label>
 
         <select
           className="input composer__priority"

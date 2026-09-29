@@ -49,7 +49,7 @@ export function WeekStrip({ today, selectedDate, counts, onSelectDate, onShowAll
         {Array.from({ length: 7 }, (_, index) => {
           const date = addDaysISO(anchor, index - ((parseISODate(anchor)?.getDay() ?? 0) + 6) % 7);
           const parsed = parseISODate(date);
-          const dayNumber = parsed ? String(parsed.getDate()).padStart(2, '0') : '--';
+          const dayNumber = parsed ? String(parsed.getDate()) : '--';
           const weekday = parsed
             ? parsed.toLocaleDateString(undefined, { weekday: 'short' })
             : '';
@@ -63,11 +63,12 @@ export function WeekStrip({ today, selectedDate, counts, onSelectDate, onShowAll
                 className={`week__day${active ? ' week__day--active' : ''}${isToday ? ' week__day--today' : ''}`}
                 onClick={() => onSelectDate(date)}
                 aria-pressed={active}
-                aria-label={`${weekday} ${dayNumber}${count > 0 ? `, ${count} tasks` : ''}`}
+                aria-label={`${weekday} ${dayNumber}${isToday ? ', today' : ''}${count > 0 ? `, ${count} tasks` : ''}`}
               >
-                <span className="week__day-number">{dayNumber}</span>
                 <span className="week__day-name">{weekday}</span>
-                <span className={`week__dot${count > 0 ? ' week__dot--busy' : ''}`} aria-hidden="true" />
+                <span className="week__day-number">{dayNumber}</span>
+                {isToday ? <span className="week__today-mark">Today</span> : null}
+                {count > 0 ? <span className="week__badge">{count}</span> : null}
               </button>
             </li>
           );

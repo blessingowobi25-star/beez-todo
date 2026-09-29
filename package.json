@@ -2,7 +2,7 @@
   "name": "beeztodo-app",
   "private": true,
   "version": "1.0.0",
-  "description": "BeezTodo - a To-Do list app with notes, focus timer and stats. Built with React + TypeScript + Vite.",
+  "description": "Beez - a To-Do list app with notes, focus timer and stats. Built with React + TypeScript + Vite.",
   "type": "module",
   "scripts": {
     "dev": "vite",

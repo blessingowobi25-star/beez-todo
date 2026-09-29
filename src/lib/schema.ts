@@ -1,4 +1,7 @@
 import type { AppState, Note, NoteColor, Priority, SortMode, Task, TaskFilter, TaskStatusFilter, ThemeName } from '../types';
+import { addDaysISO, todayISO } from './date';
+import { createNote } from './noteUtils';
+import { createTask } from './taskUtils';
 import { normalizeTag } from './taskUtils';
 
 /** Bump when the persisted shape changes and add a forward-fix in `migrate`. */
@@ -129,7 +132,7 @@ export function migrate(state: AppState): AppState {
  * malformed tasks/notes are skipped, and notes pointing at missing tasks are unlinked.
  */
 export function parseState(raw: unknown, now: Date = new Date()): AppState {
-  if (!isRecord(raw)) throw new Error('Backup is not a BeezTodo object.');
+  if (!isRecord(raw)) throw new Error('Backup is not a Beez object.');
   if (!('tasks' in raw) && !('notes' in raw)) {
     throw new Error('Backup does not contain a "tasks" or "notes" list.');
   }
@@ -161,65 +164,34 @@ export function serializeState(state: AppState): string {
   return JSON.stringify(state, null, 2);
 }
 
-import { addDaysISO, todayISO } from './date';
-import { createNote } from './noteUtils';
-import { createTask } from './taskUtils';
-
-/** First-run sample content so a fresh deployment is never an empty page. */
+/**
+ * First-run state for a brand-new user. Deliberately empty: a new visitor must
+ * not see someone else's tasks, and the only seeded content is one welcome note.
+ */
 export function createSeedState(now: Date = new Date()): AppState {
-  const today = todayISO(now);
-
-  const kickoffTask = createTask(
-    {
-      title: 'Try BeezTodo: add your first task',
-      description: 'Type a title, press Enter, then tick the checkbox to complete it.',
-      priority: 'high',
-      dueDate: today,
-      tags: ['getting-started'],
-    },
-    now,
-  );
-
-  const notesTask = createTask(
-    {
-      title: 'Capture an idea in the Notes panel',
-      description: 'Notes can stand alone or be attached to a task.',
-      priority: 'medium',
-      dueDate: addDaysISO(today, 2),
-      tags: ['getting-started', 'notes'],
-    },
-    now,
-  );
-
-  const focusTask = createTask(
-    {
-      title: 'Run a 25 minute focus session',
-      description: 'Pick this task in the focus timer and press Start.',
-      priority: 'medium',
-      dueDate: addDaysISO(today, 3),
-      tags: ['focus'],
-    },
-    now,
-  );
-
-  const designTask: Task = {
-    ...createTask({ title: 'Sketch the layout of the app', priority: 'low', tags: ['design'] }, now),
-    done: true,
-    completedAt: now.toISOString(),
-    focusSessions: 1,
+  return {
+    version: SCHEMA_VERSION,
+    tasks: [],
+    notes: [createWelcomeNote(now)],
+    theme: 'light',
+    sort: 'manual',
+    filter: { ...DEFAULT_FILTER },
   };
+}
 
-  const welcomeNote = {
+function createWelcomeNote(now: Date) {
+  return {
     ...createNote(
       {
-        title: 'Welcome to BeezTodo 👋',
+        title: 'Welcome to Beez',
         body: [
           'Everything you type is saved in this browser instantly - no account, no server.',
           '',
           'Worth trying:',
+          '- Add your first task using the box above',
+          '- Give it a due date, then tap a day in the calendar to filter by it',
           '- Drag tasks to reorder them',
-          '- Filter by Today or Overdue, or press "/" to search',
-          '- Export a JSON backup from the header menu',
+          '- Press "/" to search and "d" to switch theme',
         ].join('\n'),
         color: 'violet',
       },
@@ -227,23 +199,54 @@ export function createSeedState(now: Date = new Date()): AppState {
     ),
     pinned: true,
   };
+}
 
-  const deployNote = createNote(
-    {
-      title: 'Deploy checklist',
-      body: ['1. npm run test', '2. npm run build', '3. Deploy dist/ to Vercel', '4. Submit the live URL'].join(
-        '\n',
-      ),
-      color: 'emerald',
-      taskId: focusTask.id,
-    },
-    now,
-  );
+/**
+ * Demo content behind the explicit "Load sample data" action. Opt-in only, so
+ * it never appears on first load.
+ */
+export function createSampleState(now: Date = new Date()): AppState {
+  const today = todayISO(now);
+  const tasks = [
+    createTask(
+      {
+        title: 'Try Beez: add your first task',
+        description: 'Type a title, press Enter, then tick the checkbox to complete it.',
+        priority: 'high',
+        dueDate: today,
+        tags: ['getting-started'],
+      },
+      now,
+    ),
+    createTask(
+      {
+        title: 'Capture an idea in the Notes panel',
+        description: 'Notes can stand alone or be attached to a task.',
+        priority: 'medium',
+        dueDate: addDaysISO(today, 2),
+        tags: ['notes'],
+      },
+      now,
+    ),
+    createTask(
+      {
+        title: 'Run a 25 minute focus session',
+        description: 'Pick this task in the focus timer and press Start.',
+        priority: 'medium',
+        dueDate: addDaysISO(today, 3),
+        tags: ['focus'],
+      },
+      now,
+    ),
+  ];
 
   return {
     version: SCHEMA_VERSION,
-    tasks: [kickoffTask, notesTask, focusTask, designTask],
-    notes: [welcomeNote, deployNote],
+    tasks: [
+      ...tasks,
+      { ...createTask({ title: 'Sketch the layout of the app', priority: 'low' }, now), done: true, completedAt: now.toISOString() },
+    ],
+    notes: [createWelcomeNote(now)],
     theme: 'light',
     sort: 'manual',
     filter: { ...DEFAULT_FILTER },

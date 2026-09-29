@@ -7,7 +7,7 @@ a step, add it to "Lessons learned" at the bottom — that is how this file impr
 
 ## 1. Project overview
 
-- **Product:** TaskFlow — a browser-only to-do app with notes, due dates, priorities,
+- **Product:** Beez — a browser-only to-do app with notes, due dates, priorities,
   tags, drag-and-drop ordering, a customisable focus timer, stats, JSON backup/restore and a
   light/dark theme. The UI follows a soft "planner" reference: greeting hero, week strip,
   pastel cards and a mobile bottom nav (`src/planner.css`).
@@ -224,6 +224,20 @@ These are real problems hit while building this app. They are the highest-value 
     hours/minutes inputs only exist after the "Custom" chip is pressed, so `getByLabelText`
     raced the re-render and failed. Use `findByLabelText`/`findByText` for anything behind a
     toggle, per section 6 of the testing rules.
+18. **Reset the filter whenever the user changes the list, or the change is invisible.** Two
+    real bugs had this shape. Adding a task while a status tab was active put the new task
+    outside the active filter, so the app looked like it had swallowed it; tapping a stat
+    tile while a day was selected in the week strip was likewise swallowed by
+    `calendarDate`. Fix: `App.tsx` owns `addTask()` and `showStatus()`, and both call
+    `store.resetFilter()` **and** `setCalendarDate(null)`. Any new control that narrows the
+    list must clear the other filters too.
+19. **First run must be empty.** `createSeedState()` returns zero tasks and one "Welcome to
+    Beez" note. Demo content lives in a separate `createSampleState()`, reachable only via the
+    explicit **Data → Load sample data** action (`data/seed`). Do not merge them — a reviewer
+    who opens the app must not see tasks they never created.
+20. **Don't ship controls that do nothing.** The header notification bell had no handler and
+    the hero had a decorative gradient orb; both were removed rather than patched. A control
+    either has an action or is not rendered.
 
 Add to this document whenever an agent:
 - discovers a repo-specific gotcha (put it in "Lessons learned" with the symptom and the fix),

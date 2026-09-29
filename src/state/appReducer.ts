@@ -1,6 +1,6 @@
 import type { AppState, Note, SortMode, Task, TaskFilter, ThemeName } from '../types';
 import { createNote, type NoteDraft } from '../lib/noteUtils';
-import { createEmptyState, createSeedState, DEFAULT_FILTER } from '../lib/schema';
+import { createEmptyState, createSampleState, DEFAULT_FILTER } from '../lib/schema';
 import { createTask, moveTask, type TaskDraft } from '../lib/taskUtils';
 
 /**
@@ -160,7 +160,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return createEmptyState(action.theme);
 
     case 'data/seed':
-      return createSeedState();
+      return createSampleState();
 
     default:
       return state;

@@ -17,7 +17,6 @@ interface TaskListProps {
   onReorder: (fromId: string, toId: string) => void;
   onTagClick: (tag: string) => void;
   onClearCompleted: () => void;
-  onAddSample: () => void;
   onResetFilters: () => void;
 }
 
@@ -35,7 +34,6 @@ export function TaskList({
   onReorder,
   onTagClick,
   onClearCompleted,
-  onAddSample,
   onResetFilters,
 }: TaskListProps) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -66,18 +64,16 @@ export function TaskList({
         <div className="empty">
           {hasTasks ? (
             <>
-              <p className="empty__title">No tasks match your filters</p>
+              <p className="empty__title">No tasks match this view</p>
+              <p className="empty__text">Try another status tab, or clear the search and filters.</p>
               <button type="button" className="button" onClick={onResetFilters}>
-                Clear filters
+                Show all tasks
               </button>
             </>
           ) : (
             <>
-              <p className="empty__title">Nothing here yet</p>
-              <p className="empty__text">Add your first task above, or load the sample data to explore.</p>
-              <button type="button" className="button" onClick={onAddSample}>
-                Load sample data
-              </button>
+              <p className="empty__title">No tasks yet</p>
+              <p className="empty__text">Add your first task using the box above.</p>
             </>
           )}
         </div>

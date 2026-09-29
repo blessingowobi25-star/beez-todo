@@ -529,11 +529,6 @@ textarea.input {
   letter-spacing: -0.01em;
 }
 
-.app-header__subtitle {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-}
-
 .app-header__actions {
   display: flex;
   align-items: center;
@@ -706,6 +701,26 @@ textarea.input {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto auto;
   gap: 0.5rem;
+}
+
+.composer__date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  justify-content: center;
+}
+
+/* Readable date caption above the native picker. The native control renders
+   dd/mm/yyyy segments that read as unexplained numbers, so the caption is what
+   the user actually reads. */
+.composer__date-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .composer__date,

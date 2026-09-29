@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { importState } from '../lib/persistence';
-import { parseState, parseTask, SCHEMA_VERSION, serializeState } from '../lib/schema';
+import { createSampleState, createSeedState, parseState, parseTask, SCHEMA_VERSION, serializeState } from '../lib/schema';
 
 const NOW = new Date('2026-09-29T09:00:00.000Z');
 
@@ -46,9 +46,29 @@ describe('parseTask', () => {
   });
 });
 
+describe('createSeedState', () => {
+  it('starts a new user with no tasks and only the welcome note', () => {
+    const state = createSeedState(NOW);
+
+    expect(state.tasks).toEqual([]);
+    expect(state.notes).toHaveLength(1);
+    expect(state.notes[0].title).toBe('Welcome to Beez');
+    expect(state.notes.some((note) => note.title === 'Deploy checklist')).toBe(false);
+  });
+});
+
+describe('createSampleState', () => {
+  it('provides opt-in demo tasks and the same welcome note', () => {
+    const state = createSampleState(NOW);
+
+    expect(state.tasks.length).toBeGreaterThan(0);
+    expect(state.notes[0].title).toBe('Welcome to Beez');
+  });
+});
+
 describe('parseState', () => {
   it('throws a readable error for non-object payloads', () => {
-    expect(() => parseState('nope', NOW)).toThrow('not a BeezTodo object');
+    expect(() => parseState('nope', NOW)).toThrow('not a Beez object');
     expect(() => parseState({ hello: 'world' }, NOW)).toThrow('does not contain');
   });
 
@@ -100,6 +120,6 @@ describe('backup round trip', () => {
 
   it('reports invalid files clearly', () => {
     expect(() => importState('{ not json', NOW)).toThrow('not valid JSON');
-    expect(() => importState('"a string"', NOW)).toThrow('not a BeezTodo object');
+    expect(() => importState('"a string"', NOW)).toThrow('not a Beez object');
   });
 });
