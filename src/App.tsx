@@ -166,12 +166,12 @@ export default function App() {
         </div>
 
         <aside className="app__column app__column--side">
-          {/* Calendar, focus and notes form their own two-column band beneath the
-              task list. Stacking all three in a single narrow sidebar left the
-              Notes panel stranded at the bottom with dead space beside it. */}
-          {/* The `app__side-row` wrapper is separate from the `app__mobile-pane`
-              element: if one element carried both, the mobile `display: block`
-              would override the pane's `display: none` and break pane switching. */}
+          {/* Calendar and notes share the top row; the focus timer spans the row
+              beneath. Notes previously sat below the timer, stranded at the
+              bottom of the column. The `app__side-row` wrapper is deliberately a
+              separate element from `app__mobile-pane`: if one element carried
+              both, the mobile `display: block` would override the pane's
+              `display: none` and break pane switching. */}
           <div className="app__side-row">
             <div className="app__mobile-pane" data-active={section === 'calendar'}>
               <MonthCalendar
@@ -185,9 +185,19 @@ export default function App() {
                 onShowAll={() => setCalendarDate(null)}
               />
             </div>
+
+            <div className="app__mobile-pane" data-active={section === 'notes'}>
+              <NotesPanel
+                notes={state.notes}
+                tasks={state.tasks}
+                onAdd={store.addNote}
+                onUpdate={store.updateNote}
+                onDelete={store.deleteNote}
+              />
+            </div>
           </div>
 
-          <div className="app__side-row">
+          <div className="app__side-row app__side-row--single">
             <div className="app__mobile-pane" data-active={section === 'focus'}>
               <FocusTimer
                 tasks={state.tasks}
@@ -198,16 +208,6 @@ export default function App() {
                   store.logFocusSession(taskId);
                   setFocusTaskId(taskId);
                 }}
-              />
-            </div>
-
-            <div className="app__mobile-pane" data-active={section === 'notes'}>
-              <NotesPanel
-                notes={state.notes}
-                tasks={state.tasks}
-                onAdd={store.addNote}
-                onUpdate={store.updateNote}
-                onDelete={store.deleteNote}
               />
             </div>
           </div>

@@ -562,6 +562,12 @@ textarea.input {
   align-items: start;
 }
 
+/* The focus timer is the only panel in its row; let it use the full width
+   instead of stretching a 1fr cell and leaving a gap. */
+.app__side-row--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .app__column {
   display: flex;
   flex-direction: column;
