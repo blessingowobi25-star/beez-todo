@@ -151,6 +151,13 @@
   color: #6d5ef0;
 }
 
+/* The calendar shares the side band with focus and notes, so cap its width:
+   day cells must not grow with the container or a wide calendar is a wall of
+   boxes again. */
+.week {
+  max-width: 23rem;
+}
+
 .week__all {
   margin-top: 0.5rem;
   align-self: center;
@@ -242,8 +249,9 @@ html[data-theme='dark'] .stat-card--mint {
     display: contents;
   }
 
-  .week__days {
-    gap: 0.2rem;
+  /* Single column on mobile: the two-up side row would squeeze the timer. */
+  .app__side-row {
+    display: block;
   }
 
   .bottom-nav {

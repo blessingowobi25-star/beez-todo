@@ -166,42 +166,50 @@ export default function App() {
         </div>
 
         <aside className="app__column app__column--side">
-          {/* The calendar lives in the sidebar: full-width it dominated the page,
-              because square cells scale with the container they sit in. */}
-          <div className="app__mobile-pane" data-active={section === 'calendar'}>
-            <MonthCalendar
-              today={today}
-              selectedDate={calendarDate ?? today}
-              counts={dayCounts}
-              onSelectDate={(date) => {
-                setCalendarDate(date);
-                setSection('calendar');
-              }}
-              onShowAll={() => setCalendarDate(null)}
-            />
+          {/* Calendar, focus and notes form their own two-column band beneath the
+              task list. Stacking all three in a single narrow sidebar left the
+              Notes panel stranded at the bottom with dead space beside it. */}
+          {/* The `app__side-row` wrapper is separate from the `app__mobile-pane`
+              element: if one element carried both, the mobile `display: block`
+              would override the pane's `display: none` and break pane switching. */}
+          <div className="app__side-row">
+            <div className="app__mobile-pane" data-active={section === 'calendar'}>
+              <MonthCalendar
+                today={today}
+                selectedDate={calendarDate ?? today}
+                counts={dayCounts}
+                onSelectDate={(date) => {
+                  setCalendarDate(date);
+                  setSection('calendar');
+                }}
+                onShowAll={() => setCalendarDate(null)}
+              />
+            </div>
           </div>
 
-          <div className="app__mobile-pane" data-active={section === 'focus'}>
-            <FocusTimer
-              tasks={state.tasks}
-              selectedTaskId={focusTaskId}
-              today={today}
-              onSelectTask={setFocusTaskId}
-              onSessionComplete={(taskId) => {
-                store.logFocusSession(taskId);
-                setFocusTaskId(taskId);
-              }}
-            />
-          </div>
+          <div className="app__side-row">
+            <div className="app__mobile-pane" data-active={section === 'focus'}>
+              <FocusTimer
+                tasks={state.tasks}
+                selectedTaskId={focusTaskId}
+                today={today}
+                onSelectTask={setFocusTaskId}
+                onSessionComplete={(taskId) => {
+                  store.logFocusSession(taskId);
+                  setFocusTaskId(taskId);
+                }}
+              />
+            </div>
 
-          <div className="app__mobile-pane" data-active={section === 'notes'}>
-            <NotesPanel
-              notes={state.notes}
-              tasks={state.tasks}
-              onAdd={store.addNote}
-              onUpdate={store.updateNote}
-              onDelete={store.deleteNote}
-            />
+            <div className="app__mobile-pane" data-active={section === 'notes'}>
+              <NotesPanel
+                notes={state.notes}
+                tasks={state.tasks}
+                onAdd={store.addNote}
+                onUpdate={store.updateNote}
+                onDelete={store.deleteNote}
+              />
+            </div>
           </div>
         </aside>
       </main>
