@@ -543,29 +543,22 @@ textarea.input {
   gap: 0.5rem;
 }
 
-/* Two bands: the task list on the left, and the calendar/focus/notes band on
-   the right. The side column sizes to its content so the task list no longer
-   leaves a tall empty gutter beside the stacked panels. */
+/* Single column: the task list on top, then calendar / notes / focus in one
+   full-width row. Splitting the page into two columns left the task list with a
+   tall empty gutter beside the panels, and squeezed three panels into a
+   sidebar too narrow to read. */
 .app__main {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.4fr);
+  display: flex;
+  flex-direction: column;
   gap: 0.9rem;
-  align-items: start;
 }
 
-/* Focus and notes sit side by side rather than queuing vertically, so the
-   Notes panel is never stranded alone at the bottom of a narrow column. */
+/* Calendar, notes and focus timer in a single row. */
 .app__side-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.9rem;
   align-items: start;
-}
-
-/* The focus timer is the only panel in its row; let it use the full width
-   instead of stretching a 1fr cell and leaving a gap. */
-.app__side-row--single {
-  grid-template-columns: minmax(0, 1fr);
 }
 
 .app__column {
@@ -1495,8 +1488,9 @@ textarea.input {
 
 /* --------------------------------------------------------------- responsive */
 @media (max-width: 960px) {
-  .app__main {
-    grid-template-columns: minmax(0, 1fr);
+  /* Three panels stop being readable side by side; drop to two, then one. */
+  .app__side-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .note-list {

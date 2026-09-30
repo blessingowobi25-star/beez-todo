@@ -154,6 +154,14 @@
   color: #6d5ef0;
 }
 
+/* Three panels share the row, so the calendar's cells get a wide column each.
+   Cap the cell width so they stay compact instead of stretching into bars;
+   height is already fixed at 2.1rem. */
+.week__cell {
+  max-width: 3.2rem;
+  margin: 0 auto;
+}
+
 .week__all {
   margin-top: 0.5rem;
   align-self: center;
@@ -245,7 +253,7 @@ html[data-theme='dark'] .stat-card--mint {
     display: contents;
   }
 
-  /* Single column on mobile: the two-up side row would squeeze the timer. */
+  /* Single column on mobile: three panels side by side would be unusable. */
   .app__side-row {
     display: block;
   }
