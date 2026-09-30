@@ -113,19 +113,6 @@ export default function App() {
         onLoadSample={store.loadSampleData}
       />
 
-      <div className="app__mobile-pane" data-active={section === 'calendar'}>
-        <MonthCalendar
-          today={today}
-          selectedDate={calendarDate ?? today}
-          counts={dayCounts}
-          onSelectDate={(date) => {
-            setCalendarDate(date);
-            setSection('calendar');
-          }}
-          onShowAll={() => setCalendarDate(null)}
-        />
-      </div>
-
       <main className="app__main">
         <div className="app__column app__column--tasks" data-active={section === 'home' || section === 'calendar'}>
           <StatsBar
@@ -179,6 +166,21 @@ export default function App() {
         </div>
 
         <aside className="app__column app__column--side">
+          {/* The calendar lives in the sidebar: full-width it dominated the page,
+              because square cells scale with the container they sit in. */}
+          <div className="app__mobile-pane" data-active={section === 'calendar'}>
+            <MonthCalendar
+              today={today}
+              selectedDate={calendarDate ?? today}
+              counts={dayCounts}
+              onSelectDate={(date) => {
+                setCalendarDate(date);
+                setSection('calendar');
+              }}
+              onShowAll={() => setCalendarDate(null)}
+            />
+          </div>
+
           <div className="app__mobile-pane" data-active={section === 'focus'}>
             <FocusTimer
               tasks={state.tasks}

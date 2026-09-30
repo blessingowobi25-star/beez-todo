@@ -16,8 +16,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.6rem;
-  margin-bottom: 0.9rem;
+  gap: 0.4rem;
+  margin-bottom: 0.55rem;
 }
 
 .week__title {
@@ -25,56 +25,56 @@
 }
 
 .week__title h2 {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 800;
 }
 
 .week__eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
+  gap: 0.3rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
 }
 
 .week__grid-wrap {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.2rem;
 }
 
 .week__weekdays,
 .week__grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 0.3rem;
+  gap: 0.2rem;
 }
 
 .week__weekday {
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--text-muted);
-  padding-bottom: 0.15rem;
 }
 
-/* Square day cells: the old 7-day strip used wide rounded cards, which read as a
-   row of panels rather than a calendar. `aspect-ratio` keeps them square at any
-   container width. */
+/* Compact day cells, sized by HEIGHT not by width. The earlier
+   `aspect-ratio: 1 / 1` alone made each cell as tall as its column was wide, so
+   a full-width calendar became a wall of giant boxes. Pinning the height keeps
+   cells the same comfortable size in the sidebar or full width. */
 .week__cell {
   position: relative;
-  aspect-ratio: 1 / 1;
+  height: 2.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 9px;
   background: var(--surface-2);
   color: var(--text);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   transition: background var(--transition), border-color var(--transition);
 }
 
@@ -126,23 +126,23 @@
 }
 
 .week__today-btn {
-  padding: 0.3rem 0.7rem;
-  font-size: 0.78rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.72rem;
 }
 
 .week__badge {
   position: absolute;
-  top: 3px;
-  right: 4px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
+  top: 1px;
+  right: 2px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
   border-radius: 999px;
   background: #6d5ef0;
   color: #fff;
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 800;
-  line-height: 16px;
+  line-height: 14px;
   text-align: center;
 }
 
@@ -152,8 +152,10 @@
 }
 
 .week__all {
-  margin-top: 0.7rem;
+  margin-top: 0.5rem;
   align-self: center;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
 }
 
 
